@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Drive;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.DesiredState;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -42,6 +44,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem drive;
+  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -60,7 +63,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontLeft),
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+                new ModuleIOTalonFX(TunerConstants.BackRight),
+                controller);
+        superstructure = new Superstructure(drive);
+
         break;
 
       case SIM:
@@ -71,7 +77,11 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontLeft),
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+                new ModuleIOSim(TunerConstants.BackRight),
+                controller);
+
+        superstructure = new Superstructure(drive);
+
         break;
 
       default:
@@ -82,7 +92,11 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                new ModuleIO() {});
+                new ModuleIO() {},
+                controller);
+                
+        superstructure = new Superstructure(drive);
+
         break;
     }
 
@@ -106,55 +120,49 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureButtonBindings();
+    configureDriver(controller);
+    
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        new Drive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX(),
-            () -> controller.leftBumper().getAsBoolean()));
-    // Lock to 0° when A button is held
+  private void configureDriver(CommandXboxController controller) {
     controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
+        .leftTrigger()
         .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+            Commands.either(
+                superstructure.superstructureCommand(DesiredState.SCORE_LEFT_L1),
+                Commands.either(
+                    superstructure.superstructureCommand(DesiredState.SCORE_LEFT_L2),
+                    Commands.either(
+                        superstructure.superstructureCommand(DesiredState.SCORE_LEFT_L3),
+                        Commands.either(
+                            superstructure.superstructureCommand(DesiredState.SCORE_LEFT_L4),
+                            superstructure.superstructureCommand(DesiredState.DEFAULT),
+                            () -> superstructure.getCurrentReefLevel() == ReefLevel.L4),
+                        () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
+                    () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
+                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
+        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+    controller
+        .rightTrigger()
+        .onTrue(
+            Commands.either(
+                superstructure.superstructureCommand(DesiredState.SCORE_RIGHT_L1),
+                Commands.either(
+                    superstructure.superstructureCommand(DesiredState.SCORE_RIGHT_L2),
+                    Commands.either(
+                        superstructure.superstructureCommand(DesiredState.SCORE_RIGHT_L3),
+                        Commands.either(
+                            superstructure.superstructureCommand(DesiredState.SCORE_RIGHT_L4),
+                            superstructure.superstructureCommand(DesiredState.DEFAULT),
+                            () -> superstructure.getCurrentReefLevel() == ReefLevel.L4),
+                        () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
+                    () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
+                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
+        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+    controller
+        .leftBumper()
+        .onTrue(superstructure.superstructureCommand(DesiredState.TO_FEEDER))
+        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
 }
