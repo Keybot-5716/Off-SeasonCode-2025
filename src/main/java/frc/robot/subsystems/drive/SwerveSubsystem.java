@@ -26,7 +26,11 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,19 +43,31 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -106,12 +122,44 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+  private boolean isFlipped;
+  private double RED_ALLIANCE_MULTIPLIER;
+  private CommandXboxController controller;
+  private static final double DEADBAND = 0.1;
+
+  public enum DesiredState {
+    MANUAL_DRIVE,
+    DROVE_TO_POSE,
+    ROTATED_TO_POSE,
+    ROTATION_LOCKED,
+    ROBOT_RELATIVE,
+    STOPPED
+  }
+
+  public enum SubsystemState {
+    MANUAL_DRIVE,
+    DROVE_TO_POSE,
+    ROTATED_TO_POSE,
+    ROTATION_LOCKED,
+    ROBOT_RELATIVE,
+    STOPPED
+  }
+
+  private DesiredState desiredState = DesiredState.MANUAL_DRIVE;
+  private SubsystemState subState = SubsystemState.MANUAL_DRIVE;
+
+  private Pose2d desiredPose = new Pose2d();
+  private Rotation2d desiredLockedRotation = new Rotation2d();
+  private Distance maxDistanceToPose;
+  public static final Distance maxMetersToReef = Units.Meters.of(0.5);
+
   public SwerveSubsystem(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
+      ModuleIO brModuleIO,
+      CommandXboxController controller) {
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -156,6 +204,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    this.controller = controller;
+    this.isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
+    this.RED_ALLIANCE_MULTIPLIER = isFlipped ? -1 : 1;
+    maxDistanceToPose = Units.Meters.of(0);
   }
 
   @Override
@@ -215,6 +269,182 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    // Testing Swerve States
+    subState = setStateTransitions();
+    Logger.recordOutput("Drive/Desired State", desiredState);
+    Logger.recordOutput("Drive/Subsystem State", subState);
+
+    applyStates();
+  }
+
+  private SubsystemState setStateTransitions() {
+    return switch (desiredState) {
+      case MANUAL_DRIVE -> SubsystemState.MANUAL_DRIVE;
+      case DROVE_TO_POSE -> SubsystemState.DROVE_TO_POSE;
+      case ROTATED_TO_POSE -> SubsystemState.ROTATED_TO_POSE;
+      case ROTATION_LOCKED -> SubsystemState.ROTATION_LOCKED;
+      case ROBOT_RELATIVE -> SubsystemState.ROBOT_RELATIVE;
+      default -> SubsystemState.STOPPED;
+    };
+  }
+
+  private void applyStates() {
+    switch (subState) {
+      default:
+      case MANUAL_DRIVE:
+        this.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                getJoysticksChassisSpeeds(
+                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getRightX(),
+                    () -> controller.rightBumper().getAsBoolean()),
+                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+        break;
+      case DROVE_TO_POSE:
+        Distance poseDistance =
+            Units.Meters.of(
+                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+        Translation2d x =
+            getLinearVelocitiesFromJoysticks(
+                () -> -controller.getLeftY(), () -> -controller.getLeftX());
+        this.driveToPose(
+            poseDistance,
+            desiredPose,
+            Units.MetersPerSecond.of(x.getX()),
+            Units.MetersPerSecond.of(x.getY()),
+            Units.Meters.of(0.5));
+        break;
+      case ROTATED_TO_POSE:
+        Distance poseToRotateDistance =
+            Units.Meters.of(
+                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+        Translation2d x2 =
+            getLinearVelocitiesFromJoysticks(
+                () -> -controller.getLeftY(), () -> -controller.getLeftX());
+        this.rotateToPose(
+            poseToRotateDistance,
+            desiredPose,
+            Units.MetersPerSecond.of(x2.getX()),
+            Units.MetersPerSecond.of(x2.getY()));
+        break;
+      case ROTATION_LOCKED:
+        this.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                getLockedAngleJoystickChassisSpeeds(
+                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                    this::getDesiredLockedRotation,
+                    () -> controller.rightBumper().getAsBoolean()),
+                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+        break;
+      case ROBOT_RELATIVE:
+        this.runVelocity(
+            getJoysticksChassisSpeeds(
+                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getRightX(),
+                () -> controller.rightBumper().getAsBoolean()));
+        break;
+    }
+  }
+
+  public void setDesiredState(DesiredState state) {
+    this.desiredState = state;
+  }
+  
+  public void setDesiredPose(Pose2d pose, Distance distance) {
+    setDesiredState(DesiredState.DROVE_TO_POSE);
+    this.desiredPose = pose;
+    this.maxDistanceToPose = distance;
+  }
+
+  public void setDesiredPoseToRotate(Pose2d pose) {
+    setDesiredState(DesiredState.ROTATED_TO_POSE);
+    this.desiredPose = pose;
+  }
+
+  public Rotation2d getDesiredLockedRotation() {
+    return desiredLockedRotation;
+  }
+
+  private ChassisSpeeds getJoysticksChassisSpeeds(
+      DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rAxis, BooleanSupplier slowMode) {
+    double xMagnitude = MathUtil.applyDeadband(xAxis.getAsDouble(), DEADBAND);
+    double yMagnitude = MathUtil.applyDeadband(yAxis.getAsDouble(), DEADBAND);
+    double omega = MathUtil.applyDeadband(rAxis.getAsDouble(), DEADBAND);
+
+    Translation2d linearVelocity =
+        DriveCommands.getLinearVelocityFromJoysticks(xAxis.getAsDouble(), yAxis.getAsDouble());
+
+    double SLOW_MODE_MULTIPLIER_TRANSLATIONAL = slowMode.getAsBoolean() ? 0.5 : 1;
+    double SLOW_MODE_MULTIPLIER_ROTATIONAL = slowMode.getAsBoolean() ? 0.5 : 1;
+
+    xMagnitude =
+        Math.copySign(linearVelocity.getX() * linearVelocity.getX(), linearVelocity.getX());
+    yMagnitude =
+        Math.copySign(linearVelocity.getY() * linearVelocity.getY(), linearVelocity.getY());
+    omega = Math.copySign(omega * omega, omega);
+
+    LinearVelocity xVelocity =
+        Units.MetersPerSecond.of(
+            xMagnitude * this.getMaxLinearSpeedMetersPerSec() * SLOW_MODE_MULTIPLIER_TRANSLATIONAL);
+    LinearVelocity yVelocity =
+        Units.MetersPerSecond.of(
+            yMagnitude * this.getMaxLinearSpeedMetersPerSec() * SLOW_MODE_MULTIPLIER_TRANSLATIONAL);
+    AngularVelocity rVelocity =
+        Units.RadiansPerSecond.of(
+            omega * this.getMaxAngularSpeedRadPerSec() * SLOW_MODE_MULTIPLIER_ROTATIONAL);
+
+    return new ChassisSpeeds(xVelocity, yVelocity, rVelocity);
+  }
+
+  private ChassisSpeeds getLockedAngleJoystickChassisSpeeds(
+      DoubleSupplier xAxis,
+      DoubleSupplier yAxis,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier slowMode) {
+    double xMagnitude = MathUtil.applyDeadband(xAxis.getAsDouble(), DEADBAND);
+    double yMagnitude = MathUtil.applyDeadband(yAxis.getAsDouble(), DEADBAND);
+
+    Translation2d linearVelocity =
+        DriveCommands.getLinearVelocityFromJoysticks(xAxis.getAsDouble(), yAxis.getAsDouble());
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(5, 0.0, 0.4, new TrapezoidProfile.Constraints(8, 20));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+    double SLOW_MODE_MULTIPLIER_TRANSLATIONAL = slowMode.getAsBoolean() ? 0.5 : 1;
+
+    xMagnitude =
+        Math.copySign(linearVelocity.getX() * linearVelocity.getX(), linearVelocity.getX());
+    yMagnitude =
+        Math.copySign(linearVelocity.getY() * linearVelocity.getY(), linearVelocity.getY());
+
+    double omega =
+        angleController.calculate(
+            this.getRotation().getRadians(), rotationSupplier.get().getRadians());
+    return new ChassisSpeeds(
+        xMagnitude * this.getMaxLinearSpeedMetersPerSec() * SLOW_MODE_MULTIPLIER_TRANSLATIONAL,
+        yMagnitude * this.getMaxLinearSpeedMetersPerSec() * SLOW_MODE_MULTIPLIER_TRANSLATIONAL,
+        omega);
+  }
+
+  private Translation2d getLinearVelocitiesFromJoysticks(
+      DoubleSupplier xAxis, DoubleSupplier yAxis) {
+    double xMagnitude = MathUtil.applyDeadband(xAxis.getAsDouble(), DEADBAND);
+    double yMagnitude = MathUtil.applyDeadband(yAxis.getAsDouble(), DEADBAND);
+
+    Translation2d linearVelocity =
+        DriveCommands.getLinearVelocityFromJoysticks(xAxis.getAsDouble(), yAxis.getAsDouble());
+    xMagnitude =
+        Math.copySign(linearVelocity.getX() * linearVelocity.getX(), linearVelocity.getX());
+    yMagnitude =
+        Math.copySign(linearVelocity.getY() * linearVelocity.getY(), linearVelocity.getY());
+
+    xMagnitude = xMagnitude * this.getMaxLinearSpeedMetersPerSec();
+    yMagnitude = yMagnitude * this.getMaxLinearSpeedMetersPerSec();
+
+    return new Translation2d(xMagnitude, yMagnitude);
   }
 
   /**
@@ -239,6 +469,34 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+  }
+
+  public void runVelocity(Translation2d traslation, double rotation, boolean isFieldRelative) {
+    ChassisSpeeds chassisSpeeds;
+
+    boolean isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
+
+    if (isFieldRelative) {
+      chassisSpeeds =
+          ChassisSpeeds.fromFieldRelativeSpeeds(
+              traslation.getX(), traslation.getY(), rotation, getRotation());
+
+    } else {
+      if (isFlipped) {
+        chassisSpeeds = new ChassisSpeeds(-traslation.getX(), -traslation.getY(), rotation);
+      } else {
+        chassisSpeeds = new ChassisSpeeds(traslation.getX(), traslation.getY(), rotation);
+      }
+    }
+
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(chassisSpeeds, 0.02);
+    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+
+    for (int i = 0; i < 4; i++) {
+      modules[i].runSetpoint(setpointStates[i]);
+    }
   }
 
   /** Runs the drive in a straight line with the specified drive output. */
@@ -364,5 +622,98 @@ public class SwerveSubsystem extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  /** Drive to Pose functions */
+  public static final PIDController TRANSLATION_PID = new PIDController(4, 0, 0);
+
+  public static final ProfiledPIDController ROTATION_PID =
+      new ProfiledPIDController(
+          3,
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
+                  / SwerveSubsystem.DRIVE_BASE_RADIUS,
+              Math.pow(
+                  TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
+                      / SwerveSubsystem.DRIVE_BASE_RADIUS,
+                  2)));
+
+  public static final Distance TRANS_TOLERANCE = Units.Meters.of(0.1);
+  public static final Angle ROTATION_TOLERANCE = Units.Degrees.of(1);
+
+  public static HolonomicDriveController AUTO_ALLIGN_CONTROLLER =
+      new HolonomicDriveController(TRANSLATION_PID, TRANSLATION_PID, ROTATION_PID);
+
+  public ChassisSpeeds getAllignmentSpeeds(Pose2d pose) {
+    desiredPose = pose;
+
+    return AUTO_ALLIGN_CONTROLLER.calculate(this.getPose(), pose, 0, pose.getRotation());
+  }
+
+  public AngularVelocity getVelocityToRotate(Rotation2d desiredYaw) {
+    double yawSetpoint =
+        AUTO_ALLIGN_CONTROLLER
+            .getThetaController()
+            .calculate(this.getRotation().getRadians(), desiredYaw.getRadians());
+    yawSetpoint =
+        MathUtil.clamp(
+            yawSetpoint, -this.getMaxAngularSpeedRadPerSec(), this.getMaxAngularSpeedRadPerSec());
+    return Units.RadiansPerSecond.of(yawSetpoint);
+  }
+
+  public AngularVelocity getVelocityToRotate(Angle desiredYaw) {
+    return getVelocityToRotate(Rotation2d.fromDegrees(desiredYaw.in(Units.Degrees)));
+  }
+
+  private void driveToPose(
+      Distance targetDistance,
+      Pose2d target,
+      LinearVelocity xVel,
+      LinearVelocity yVel,
+      Distance maxDistance) {
+    desiredPose = target;
+
+    if (targetDistance.gte(maxDistance)) {
+      this.runVelocity(
+          new Translation2d(
+              xVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond),
+              yVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond)),
+          getVelocityToRotate(target.getRotation()).in(Units.RadiansPerSecond),
+          true);
+    } else {
+      ChassisSpeeds desiredSpeed = getAllignmentSpeeds(target);
+      LinearVelocity speedLimit = Units.MetersPerSecond.of(this.getMaxLinearSpeedMetersPerSec());
+      AngularVelocity angularLimit = Units.RadiansPerSecond.of(this.getMaxAngularSpeedRadPerSec());
+
+      if (!RobotState.isAutonomous()) {
+        if (desiredSpeed.vxMetersPerSecond > speedLimit.in(Units.MetersPerSecond)
+            || desiredSpeed.vyMetersPerSecond > speedLimit.in(Units.MetersPerSecond)
+            || desiredSpeed.omegaRadiansPerSecond > angularLimit.in(Units.RadiansPerSecond)) {
+          desiredSpeed.vxMetersPerSecond =
+              MathUtil.clamp(
+                  desiredSpeed.vxMetersPerSecond, 0, speedLimit.in(Units.MetersPerSecond));
+          desiredSpeed.vyMetersPerSecond =
+              MathUtil.clamp(
+                  desiredSpeed.vyMetersPerSecond, 0, speedLimit.in(Units.MetersPerSecond));
+          desiredSpeed.omegaRadiansPerSecond =
+              MathUtil.clamp(
+                  desiredSpeed.omegaRadiansPerSecond, 0, angularLimit.in(Units.RadiansPerSecond));
+        }
+      }
+
+      this.runVelocity(desiredSpeed);
+    }
+  }
+
+  public void rotateToPose(
+      Distance targetDistance, Pose2d target, LinearVelocity xVel, LinearVelocity yVel) {
+    this.runVelocity(
+        new Translation2d(
+            xVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond),
+            yVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond)),
+        getVelocityToRotate(target.getRotation()).in(Units.RadiansPerSecond),
+        true);
   }
 }
