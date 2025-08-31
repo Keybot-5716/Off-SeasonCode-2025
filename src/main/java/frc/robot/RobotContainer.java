@@ -14,19 +14,15 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.Drive;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
+import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -94,7 +90,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 controller);
-                
+
         superstructure = new Superstructure(drive);
 
         break;
@@ -121,7 +117,6 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriver(controller);
-    
   }
 
   private void configureDriver(CommandXboxController controller) {
@@ -165,4 +160,7 @@ public class RobotContainer {
         .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
   }
 
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
+  }
 }

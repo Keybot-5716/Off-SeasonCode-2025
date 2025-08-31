@@ -353,7 +353,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void setDesiredState(DesiredState state) {
     this.desiredState = state;
   }
-  
+
   public void setDesiredPose(Pose2d pose, Distance distance) {
     setDesiredState(DesiredState.DROVE_TO_POSE);
     this.desiredPose = pose;
