@@ -1,31 +1,27 @@
 package frc.robot.subsystems.arm.Rollers;
 
-import org.littletonrobotics.junction.Autolog;
-
+import org.littletonrobotics.junction.AutoLog;
 
 public interface RollerIO {
 
-    @Autolog
-    class RollerIOInputs {
-        public RollerIOData data = new RollerIOData(false, false, 0.0, 0.0, 0.0, 0.0);
-    }
+  @AutoLog
+  class RollerIOInputs {
+    public RollerIOData data = new RollerIOData(false, false, 0.0, 0.0, 0.0, 0.0);
+  }
 
-    record RollerIOData(
+  record RollerIOData(
+      boolean motorConnected,
+      boolean intaking,
+      double velocityRPS,
+      double RollerappliedVoltage,
+      double RollercurrentAmps,
+      double RollertemperatureCelsius) {}
 
-        boolean motorConnected,
-        boolean intaking,
-        double velocityRPS,
-        double RollerappliedVoltage,
-        double RollercurrentAmps,
-        double RollertemperatureCelsius) {}
+  public default void updateInputs(RollerIOInputs inputs) {}
 
-        public default void updateInputs(RollerIOInputs inputs) {}
+  public default void setRollerSpeed(double speed) {}
 
-        public default void setRollerSpeed(double speed) {}
+  public default void stopRoller() {}
 
-        public default void stopRoller() {}
-
-        public default void runOpenLoop(double output) {}
-    }
-    
+  public default void runOpenLoop(double output) {}
 }
