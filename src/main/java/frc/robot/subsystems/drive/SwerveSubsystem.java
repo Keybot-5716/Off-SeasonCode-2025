@@ -153,7 +153,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @SuppressWarnings("unused")
   private Distance maxDistanceToPose;
-  
+
   public static final Distance maxMetersToReef = Units.Meters.of(0.5);
 
   public SwerveSubsystem(
@@ -680,67 +680,62 @@ public class SwerveSubsystem extends SubsystemBase {
         true);
   }
 
-  /**
-   * Here are the movement methods for the chassis
-   */
-
+  /** Here are the movement methods for the chassis */
   private void manualMovement() {
     this.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                getJoysticksChassisSpeeds(
-                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getRightX(),
-                    () -> controller.rightBumper().getAsBoolean()),
-                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
-  }
-
-  private void driveToPoseMovement() {
-    Distance poseDistance =
-            Units.Meters.of(
-                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
-        Translation2d x =
-            getLinearVelocitiesFromJoysticks(
-                () -> -controller.getLeftY(), () -> -controller.getLeftX());
-        this.driveToPose(
-            poseDistance,
-            desiredPose,
-            Units.MetersPerSecond.of(x.getX()),
-            Units.MetersPerSecond.of(x.getY()),
-            Units.Meters.of(0.5));
-  }
-
-  private void rotateToPoseMovement() {
-    Distance poseToRotateDistance =
-            Units.Meters.of(
-                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
-        Translation2d x2 =
-            getLinearVelocitiesFromJoysticks(
-                () -> -controller.getLeftY(), () -> -controller.getLeftX());
-        this.rotateToPose(
-            poseToRotateDistance,
-            desiredPose,
-            Units.MetersPerSecond.of(x2.getX()),
-            Units.MetersPerSecond.of(x2.getY()));
-  }
-
-  private void rotationLockedMovement() {
-    this.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                getLockedAngleJoystickChassisSpeeds(
-                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
-                    this::getDesiredLockedRotation,
-                    () -> controller.rightBumper().getAsBoolean()),
-                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
-  }
-
-  private void robotRelativeMovement() {
-    this.runVelocity(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
             getJoysticksChassisSpeeds(
                 () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
                 () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
                 () -> -controller.getRightX(),
-                () -> controller.rightBumper().getAsBoolean()));
+                () -> controller.rightBumper().getAsBoolean()),
+            isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+  }
+
+  private void driveToPoseMovement() {
+    Distance poseDistance =
+        Units.Meters.of(this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+    Translation2d x =
+        getLinearVelocitiesFromJoysticks(
+            () -> -controller.getLeftY(), () -> -controller.getLeftX());
+    this.driveToPose(
+        poseDistance,
+        desiredPose,
+        Units.MetersPerSecond.of(x.getX()),
+        Units.MetersPerSecond.of(x.getY()),
+        Units.Meters.of(0.5));
+  }
+
+  private void rotateToPoseMovement() {
+    Distance poseToRotateDistance =
+        Units.Meters.of(this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+    Translation2d x2 =
+        getLinearVelocitiesFromJoysticks(
+            () -> -controller.getLeftY(), () -> -controller.getLeftX());
+    this.rotateToPose(
+        poseToRotateDistance,
+        desiredPose,
+        Units.MetersPerSecond.of(x2.getX()),
+        Units.MetersPerSecond.of(x2.getY()));
+  }
+
+  private void rotationLockedMovement() {
+    this.runVelocity(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            getLockedAngleJoystickChassisSpeeds(
+                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                this::getDesiredLockedRotation,
+                () -> controller.rightBumper().getAsBoolean()),
+            isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+  }
+
+  private void robotRelativeMovement() {
+    this.runVelocity(
+        getJoysticksChassisSpeeds(
+            () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+            () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+            () -> -controller.getRightX(),
+            () -> controller.rightBumper().getAsBoolean()));
   }
 }
