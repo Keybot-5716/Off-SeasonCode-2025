@@ -9,7 +9,6 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.drive.SwerveSubsystem.DesiredState;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 

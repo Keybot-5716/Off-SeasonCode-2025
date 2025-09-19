@@ -150,7 +150,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private Pose2d desiredPose = new Pose2d();
   private Rotation2d desiredLockedRotation = new Rotation2d();
+
+  @SuppressWarnings("unused")
   private Distance maxDistanceToPose;
+  
   public static final Distance maxMetersToReef = Units.Meters.of(0.5);
 
   public SwerveSubsystem(
@@ -293,59 +296,19 @@ public class SwerveSubsystem extends SubsystemBase {
     switch (subState) {
       default:
       case MANUAL_DRIVE:
-        this.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                getJoysticksChassisSpeeds(
-                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getRightX(),
-                    () -> controller.rightBumper().getAsBoolean()),
-                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+        this.manualMovement();
         break;
       case DROVE_TO_POSE:
-        Distance poseDistance =
-            Units.Meters.of(
-                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
-        Translation2d x =
-            getLinearVelocitiesFromJoysticks(
-                () -> -controller.getLeftY(), () -> -controller.getLeftX());
-        this.driveToPose(
-            poseDistance,
-            desiredPose,
-            Units.MetersPerSecond.of(x.getX()),
-            Units.MetersPerSecond.of(x.getY()),
-            Units.Meters.of(0.5));
+        this.driveToPoseMovement();
         break;
       case ROTATED_TO_POSE:
-        Distance poseToRotateDistance =
-            Units.Meters.of(
-                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
-        Translation2d x2 =
-            getLinearVelocitiesFromJoysticks(
-                () -> -controller.getLeftY(), () -> -controller.getLeftX());
-        this.rotateToPose(
-            poseToRotateDistance,
-            desiredPose,
-            Units.MetersPerSecond.of(x2.getX()),
-            Units.MetersPerSecond.of(x2.getY()));
+        this.rotateToPoseMovement();
         break;
       case ROTATION_LOCKED:
-        this.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                getLockedAngleJoystickChassisSpeeds(
-                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
-                    this::getDesiredLockedRotation,
-                    () -> controller.rightBumper().getAsBoolean()),
-                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+        this.rotationLockedMovement();
         break;
       case ROBOT_RELATIVE:
-        this.runVelocity(
-            getJoysticksChassisSpeeds(
-                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
-                () -> -controller.getRightX(),
-                () -> controller.rightBumper().getAsBoolean()));
+        this.robotRelativeMovement();
         break;
     }
   }
@@ -715,5 +678,69 @@ public class SwerveSubsystem extends SubsystemBase {
             yVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond)),
         getVelocityToRotate(target.getRotation()).in(Units.RadiansPerSecond),
         true);
+  }
+
+  /**
+   * Here are the movement methods for the chassis
+   */
+
+  private void manualMovement() {
+    this.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                getJoysticksChassisSpeeds(
+                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getRightX(),
+                    () -> controller.rightBumper().getAsBoolean()),
+                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+  }
+
+  private void driveToPoseMovement() {
+    Distance poseDistance =
+            Units.Meters.of(
+                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+        Translation2d x =
+            getLinearVelocitiesFromJoysticks(
+                () -> -controller.getLeftY(), () -> -controller.getLeftX());
+        this.driveToPose(
+            poseDistance,
+            desiredPose,
+            Units.MetersPerSecond.of(x.getX()),
+            Units.MetersPerSecond.of(x.getY()),
+            Units.Meters.of(0.5));
+  }
+
+  private void rotateToPoseMovement() {
+    Distance poseToRotateDistance =
+            Units.Meters.of(
+                this.getPose().getTranslation().getDistance(desiredPose.getTranslation()));
+        Translation2d x2 =
+            getLinearVelocitiesFromJoysticks(
+                () -> -controller.getLeftY(), () -> -controller.getLeftX());
+        this.rotateToPose(
+            poseToRotateDistance,
+            desiredPose,
+            Units.MetersPerSecond.of(x2.getX()),
+            Units.MetersPerSecond.of(x2.getY()));
+  }
+
+  private void rotationLockedMovement() {
+    this.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                getLockedAngleJoystickChassisSpeeds(
+                    () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                    () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                    this::getDesiredLockedRotation,
+                    () -> controller.rightBumper().getAsBoolean()),
+                isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
+  }
+
+  private void robotRelativeMovement() {
+    this.runVelocity(
+            getJoysticksChassisSpeeds(
+                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getRightX(),
+                () -> controller.rightBumper().getAsBoolean()));
   }
 }
