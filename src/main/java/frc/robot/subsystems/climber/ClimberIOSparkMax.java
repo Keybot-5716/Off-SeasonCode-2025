@@ -25,9 +25,12 @@ public class ClimberIOSparkMax implements ClimberIO {
     climberSparkMaxConfig.idleMode(IdleMode.kBrake);
 
     climberSparkMaxConfig.softLimit.forwardSoftLimitEnabled(true).forwardSoftLimit(-2);
-
-    climberSparkMax.configure(
+    /*
+     * climberSparkMax.configure(
         climberSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+     * 
+     */
+    
   }
 
   @Override
@@ -40,4 +43,5 @@ public class ClimberIOSparkMax implements ClimberIO {
     inputs.sparkAppliedVolts = climberSparkMax.getAppliedOutput();
     inputs.sparkTemp = climberSparkMax.getMotorTemperature();
   }
+  
 }
