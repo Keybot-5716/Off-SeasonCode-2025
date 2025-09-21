@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
@@ -86,25 +87,25 @@ public class Superstructure extends SubsystemBase {
   private CurrentState currentState = CurrentState.STOPPED;
   private CurrentState lastCurrentState;
 
-  //ROBOT MODE
-  private RobotMode robotMode;
+  // ROBOT MODE
+  private RobotMode robotMode = RobotMode.CORAL;
   private RobotMode desiredRobotMode;
 
-  //CORAL
+  // CORAL
   private ReefLevel reefLevel;
   private ReefLevel desiredReefLevel;
 
   private BranchType branchType;
   private BranchType desiredBranch;
 
-  //ALGAE
+  // ALGAE
   private AlgaeLevel algaeLevel;
   private AlgaeLevel desiredAlgaeLevel;
 
   private AlgaeIntake algaeIntake;
   private AlgaeIntake desiredAlgaeIntake;
 
-  //CORAL INTAKE OVERRIDE
+  // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
   public Superstructure(SwerveSubsystem swerveSub) {
@@ -112,11 +113,11 @@ public class Superstructure extends SubsystemBase {
 
     desiredRobotMode = RobotMode.CORAL;
 
-    //CORAL
+    // CORAL
     desiredBranch = BranchType.LEFT;
     desiredReefLevel = ReefLevel.L1;
 
-    //ALGAE
+    // ALGAE
     desiredAlgaeLevel = AlgaeLevel.NET;
     desiredAlgaeIntake = AlgaeIntake.LOW_ALGAE;
   }
@@ -129,12 +130,12 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/LastCurrentState", lastCurrentState);
 
     Logger.recordOutput("Superstructure/Current Mode", robotMode);
-    //CORAL
+    // CORAL
     Logger.recordOutput("Superstructure/Coral/Current Reef Level", reefLevel);
     Logger.recordOutput("Superstructure/Coral/Current Branch", branchType);
-    //ALGAE
-    Logger.recordOutput("Superstructure/Algae/Current Intake", reefLevel);
-    Logger.recordOutput("Superstructure/Algae/Current Level", branchType);
+    // ALGAE
+    Logger.recordOutput("Superstructure/Algae/Current Intake", desiredAlgaeIntake);
+    Logger.recordOutput("Superstructure/Algae/Current Level", desiredAlgaeLevel);
 
     currentState = setStateTransitions();
     robotMode = desiredRobotMode;
@@ -430,6 +431,7 @@ public class Superstructure extends SubsystemBase {
   public AlgaeIntake getCurrentAlgaeIntake() {
     return algaeIntake;
   }
+
   public void setDesiredAlgaeIntake(AlgaeIntake type) {
     desiredAlgaeIntake = type;
   }
@@ -437,6 +439,7 @@ public class Superstructure extends SubsystemBase {
   public AlgaeLevel getCurrentAlgaeLevel() {
     return algaeLevel;
   }
+
   public void setDesiredAlgaeLevel(AlgaeLevel type) {
     desiredAlgaeLevel = type;
   }
@@ -471,5 +474,34 @@ public class Superstructure extends SubsystemBase {
     desiredFeeder = feeder.get(closestIndex);
 
     return desiredFeeder;
+  }
+
+  // -- OPERATOR COMMANDS
+  public Command setMode1OperatorSystem() {
+    return Commands.either(
+        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L1)),
+        Commands.runOnce(() -> setDesiredAlgaeLevel(AlgaeLevel.PROCESSOR)),
+        () -> robotMode == RobotMode.CORAL);
+  }
+
+  public Command setMode2OperatorSystem() {
+    return Commands.either(
+        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L2)),
+        Commands.runOnce(() -> setDesiredAlgaeIntake(AlgaeIntake.LOW_ALGAE)),
+        () -> robotMode == RobotMode.CORAL);
+  }
+
+  public Command setMode3OperatorSystem() {
+    return Commands.either(
+        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L3)),
+        Commands.runOnce(() -> setDesiredAlgaeIntake(AlgaeIntake.HIGH_ALGAE)),
+        () -> robotMode == RobotMode.CORAL);
+  }
+
+  public Command setMode4OperatorSystem() {
+    return Commands.either(
+        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L4)),
+        Commands.runOnce(() -> setDesiredAlgaeLevel(AlgaeLevel.NET)),
+        () -> robotMode == RobotMode.CORAL);
   }
 }

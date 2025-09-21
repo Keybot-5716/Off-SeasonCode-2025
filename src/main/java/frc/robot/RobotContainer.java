@@ -25,8 +25,6 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
-import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
-import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.GyroIO;
@@ -179,52 +177,11 @@ public class RobotContainer {
     controller
         .rightBumper()
         .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
-    switch (superstructure.getCurrentRobotMode()) {
-        case CORAL:
-            controller
-                .povUp()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L1)));
-            controller
-                .povRight()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L2)));
-            controller
-                .povDown()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L3)));
-            controller
-                .povLeft()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L4)));
-            break;
-        case ALGAE:
-            controller
-                .povUp()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeLevel(AlgaeLevel.PROCESSOR)));
-            controller
-                .povRight()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeIntake(AlgaeIntake.LOW_ALGAE)));
-            controller
-                .povDown()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeIntake(AlgaeIntake.HIGH_ALGAE)));
-            controller
-                .povLeft()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeLevel(AlgaeLevel.NET)));
-            break;
-        default:
-            controller
-                .povUp()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L1)));
-            controller
-                .povRight()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L2)));
-            controller
-                .povDown()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L3)));
-            controller
-                .povLeft()
-                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L4)));
-            break;
-    }
+    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
+    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
+    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
+    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
   }
-  
 
   public Command getAutonomousCommand() {
     return autoChooser.get();
