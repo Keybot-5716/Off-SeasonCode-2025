@@ -129,8 +129,12 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/LastCurrentState", lastCurrentState);
 
     Logger.recordOutput("Superstructure/Current Mode", robotMode);
-    Logger.recordOutput("Superstructure/Current Reef Level", reefLevel);
-    Logger.recordOutput("Superstructure/Current Branch", branchType);
+    //CORAL
+    Logger.recordOutput("Superstructure/Coral/Current Reef Level", reefLevel);
+    Logger.recordOutput("Superstructure/Coral/Current Branch", branchType);
+    //ALGAE
+    Logger.recordOutput("Superstructure/Algae/Current Intake", reefLevel);
+    Logger.recordOutput("Superstructure/Algae/Current Level", branchType);
 
     currentState = setStateTransitions();
     robotMode = desiredRobotMode;
