@@ -25,7 +25,10 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
+import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
+import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
+import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -46,7 +49,8 @@ public class RobotContainer {
   private final Superstructure superstructure;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(1);
+  private final CommandXboxController driver_controller = new CommandXboxController(0);
+  private final CommandXboxController operator_controller = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -63,7 +67,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
-                controller);
+                driver_controller);
         superstructure = new Superstructure(drive);
 
         break;
@@ -77,7 +81,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
-                controller);
+                driver_controller);
 
         superstructure = new Superstructure(drive);
 
@@ -92,7 +96,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                controller);
+                driver_controller);
 
         superstructure = new Superstructure(drive);
 
@@ -119,7 +123,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureDriver(controller);
+    configureDriver(driver_controller);
+    configureOperatorBindings(operator_controller);
   }
 
   private void configureDriver(CommandXboxController controller) {
@@ -166,6 +171,60 @@ public class RobotContainer {
         .a()
         .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
   }
+
+  private void configureOperatorBindings(CommandXboxController controller) {
+    controller
+        .leftBumper()
+        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
+    controller
+        .rightBumper()
+        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
+    switch (superstructure.getCurrentRobotMode()) {
+        case CORAL:
+            controller
+                .povUp()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L1)));
+            controller
+                .povRight()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L2)));
+            controller
+                .povDown()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L3)));
+            controller
+                .povLeft()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L4)));
+            break;
+        case ALGAE:
+            controller
+                .povUp()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeLevel(AlgaeLevel.PROCESSOR)));
+            controller
+                .povRight()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeIntake(AlgaeIntake.LOW_ALGAE)));
+            controller
+                .povDown()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeIntake(AlgaeIntake.HIGH_ALGAE)));
+            controller
+                .povLeft()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredAlgaeLevel(AlgaeLevel.NET)));
+            break;
+        default:
+            controller
+                .povUp()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L1)));
+            controller
+                .povRight()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L2)));
+            controller
+                .povDown()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L3)));
+            controller
+                .povLeft()
+                .onTrue(Commands.runOnce(()-> superstructure.setDesiredReefLevel(ReefLevel.L4)));
+            break;
+    }
+  }
+  
 
   public Command getAutonomousCommand() {
     return autoChooser.get();

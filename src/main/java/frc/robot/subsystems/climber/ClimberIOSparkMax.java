@@ -2,8 +2,6 @@ package frc.robot.subsystems.climber;
 
 import static frc.robot.subsystems.climber.ClimberConstants.CLIMBERSPARKMAXID;
 
-import com.revrobotics.servohub.ServoHub.ResetMode;
-import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -26,11 +24,11 @@ public class ClimberIOSparkMax implements ClimberIO {
 
     climberSparkMaxConfig.softLimit.forwardSoftLimitEnabled(true).forwardSoftLimit(-2);
     /*
-     * climberSparkMax.configure(
-        climberSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-     * 
-     */
-    
+    * climberSparkMax.configure(
+       climberSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    *
+    */
+
   }
 
   @Override
@@ -43,5 +41,4 @@ public class ClimberIOSparkMax implements ClimberIO {
     inputs.sparkAppliedVolts = climberSparkMax.getAppliedOutput();
     inputs.sparkTemp = climberSparkMax.getMotorTemperature();
   }
-  
 }

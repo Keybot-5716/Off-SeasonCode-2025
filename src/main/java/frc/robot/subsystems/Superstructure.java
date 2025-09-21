@@ -6,8 +6,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
+import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
+import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -30,7 +33,19 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_L2,
     SCORE_RIGHT_L3,
     SCORE_RIGHT_L4,
-    TO_FEEDER
+    TO_FEEDER,
+    INTAKE_CORAL,
+    TAKE_CORAL,
+    INTAKE_ALGAE,
+    ALGAE_LOW_INTAKE,
+    ALGAE_HIGH_INTAKE,
+    GO_PROCESSOR,
+    SCORE_PROCESSOR,
+    GO_NET,
+    SCORE_NET,
+    OVERRIDE_CORAL,
+    PREP_CLIMB,
+    CLIMB
   }
 
   public enum CurrentState {
@@ -52,24 +67,58 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_AUTO_L2,
     SCORE_RIGHT_AUTO_L3,
     SCORE_RIGHT_AUTO_L4,
-    TO_FEEDER
+    TO_FEEDER,
+    INTAKE_CORAL,
+    TAKE_CORAL,
+    INTAKE_ALGAE,
+    ALGAE_LOW_INTAKE,
+    ALGAE_HIGH_INTAKE,
+    GO_PROCESSOR,
+    SCORE_PROCESSOR,
+    GO_NET,
+    SCORE_NET,
+    OVERRIDE_CORAL,
+    PREP_CLIMB,
+    CLIMB
   }
 
   private DesiredState desiredState = DesiredState.STOPPED;
   private CurrentState currentState = CurrentState.STOPPED;
   private CurrentState lastCurrentState;
 
+  //ROBOT MODE
+  private RobotMode robotMode;
+  private RobotMode desiredRobotMode;
+
+  //CORAL
   private ReefLevel reefLevel;
   private ReefLevel desiredReefLevel;
 
   private BranchType branchType;
   private BranchType desiredBranch;
 
+  //ALGAE
+  private AlgaeLevel algaeLevel;
+  private AlgaeLevel desiredAlgaeLevel;
+
+  private AlgaeIntake algaeIntake;
+  private AlgaeIntake desiredAlgaeIntake;
+
+  //CORAL INTAKE OVERRIDE
+  boolean isIntakeOverride = false;
+
   public Superstructure(SwerveSubsystem swerveSub) {
     this.swerveSub = swerveSub;
 
+    desiredRobotMode = RobotMode.CORAL;
+
+    //CORAL
     desiredBranch = BranchType.LEFT;
     desiredReefLevel = ReefLevel.L1;
+
+    //ALGAE
+    desiredAlgaeLevel = AlgaeLevel.NET;
+    desiredAlgaeIntake = AlgaeIntake.LOW_ALGAE;
   }
 
   @Override
@@ -79,10 +128,12 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/CurrentState", currentState);
     Logger.recordOutput("Superstructure/LastCurrentState", lastCurrentState);
 
+    Logger.recordOutput("Superstructure/Current Mode", robotMode);
     Logger.recordOutput("Superstructure/Current Reef Level", reefLevel);
     Logger.recordOutput("Superstructure/Current Branch", branchType);
 
     currentState = setStateTransitions();
+    robotMode = desiredRobotMode;
     reefLevel = desiredReefLevel;
     branchType = desiredBranch;
 
@@ -135,6 +186,42 @@ public class Superstructure extends SubsystemBase {
         break;
       case TO_FEEDER:
         currentState = CurrentState.TO_FEEDER;
+        break;
+      case INTAKE_CORAL:
+        currentState = CurrentState.INTAKE_CORAL;
+        break;
+      case TAKE_CORAL:
+        currentState = CurrentState.TAKE_CORAL;
+        break;
+      case INTAKE_ALGAE:
+        currentState = CurrentState.INTAKE_ALGAE;
+        break;
+      case ALGAE_LOW_INTAKE:
+        currentState = CurrentState.ALGAE_LOW_INTAKE;
+        break;
+      case ALGAE_HIGH_INTAKE:
+        currentState = CurrentState.ALGAE_HIGH_INTAKE;
+        break;
+      case GO_NET:
+        currentState = CurrentState.GO_NET;
+        break;
+      case SCORE_NET:
+        currentState = CurrentState.SCORE_NET;
+        break;
+      case GO_PROCESSOR:
+        currentState = CurrentState.GO_PROCESSOR;
+        break;
+      case SCORE_PROCESSOR:
+        currentState = CurrentState.SCORE_PROCESSOR;
+        break;
+      case OVERRIDE_CORAL:
+        currentState = CurrentState.OVERRIDE_CORAL;
+        break;
+      case PREP_CLIMB:
+        currentState = CurrentState.PREP_CLIMB;
+        break;
+      case CLIMB:
+        currentState = CurrentState.CLIMB;
         break;
     }
 
@@ -203,6 +290,30 @@ public class Superstructure extends SubsystemBase {
       case TO_FEEDER:
         rotateToFeeder();
         break;
+      case INTAKE_CORAL:
+        break;
+      case TAKE_CORAL:
+        break;
+      case INTAKE_ALGAE:
+        break;
+      case ALGAE_LOW_INTAKE:
+        break;
+      case ALGAE_HIGH_INTAKE:
+        break;
+      case GO_PROCESSOR:
+        break;
+      case SCORE_PROCESSOR:
+        break;
+      case GO_NET:
+        break;
+      case SCORE_NET:
+        break;
+      case OVERRIDE_CORAL:
+        break;
+      case PREP_CLIMB:
+        break;
+      case CLIMB:
+        break;
     }
   }
 
@@ -250,6 +361,32 @@ public class Superstructure extends SubsystemBase {
     swerveSub.setDesiredPoseToRotate(getDesiredFeeder());
   }
 
+  // -- Coral States
+
+  private void intakeCoral() {}
+
+  private void overrideIntakeCoral() {}
+
+  // -- Algae States
+
+  private void intakeAlgae() {}
+
+  private void intakeLowALgae() {}
+
+  private void intakeHighAlgae() {}
+
+  private void prepNet() {}
+
+  private void scoreNet() {}
+
+  private void prepProcessor() {}
+
+  private void scoreProcessor() {}
+
+  private void prepClimb() {}
+
+  private void climb() {}
+
   public void setDesiredState(DesiredState state) {
     this.desiredState = state;
   }
@@ -259,6 +396,15 @@ public class Superstructure extends SubsystemBase {
     return cmd;
   }
 
+  public RobotMode getCurrentRobotMode() {
+    return robotMode;
+  }
+
+  public void setDesiredRobotMode(RobotMode mode) {
+    desiredRobotMode = mode;
+  }
+
+  // -- CORAL --
   public ReefLevel getCurrentReefLevel() {
     return reefLevel;
   }
@@ -274,6 +420,21 @@ public class Superstructure extends SubsystemBase {
 
   public BranchType getBranchType() {
     return branchType;
+  }
+
+  // -- ALGAE --
+  public AlgaeIntake getCurrentAlgaeIntake() {
+    return algaeIntake;
+  }
+  public void setDesiredAlgaeIntake(AlgaeIntake type) {
+    desiredAlgaeIntake = type;
+  }
+
+  public AlgaeLevel getCurrentAlgaeLevel() {
+    return algaeLevel;
+  }
+  public void setDesiredAlgaeLevel(AlgaeLevel type) {
+    desiredAlgaeLevel = type;
   }
 
   public Pose2d getDesiredReef(boolean leftRequest) {
