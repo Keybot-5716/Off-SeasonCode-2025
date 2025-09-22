@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -13,12 +14,16 @@ import frc.robot.subsystems.SuperstructureConstants.BranchType;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem swerveSub;
+  private final ElevatorSubsystem elevatorSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -34,6 +39,11 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_L2,
     SCORE_RIGHT_L3,
     SCORE_RIGHT_L4,
+    SCORE_L1,
+    SCORE_L2,
+    SCORE_L3,
+    SCORE_L4,
+    OUTTAKE_CORAL,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
@@ -68,6 +78,16 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_AUTO_L2,
     SCORE_RIGHT_AUTO_L3,
     SCORE_RIGHT_AUTO_L4,
+    SCORE_L1,
+    SCORE_L2,
+    SCORE_L3,
+    SCORE_L4,
+    SCORE_AUTO_L1,
+    SCORE_AUTO_L2,
+    SCORE_AUTO_L3,
+    SCORE_AUTO_L4,
+    OUTTAKE_CORAL,
+    OUTTAKE_AUTO_CORAL,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
@@ -108,8 +128,9 @@ public class Superstructure extends SubsystemBase {
   // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
-  public Superstructure(SwerveSubsystem swerveSub) {
+  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub) {
     this.swerveSub = swerveSub;
+    this.elevatorSub = elevatorSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
@@ -189,6 +210,25 @@ public class Superstructure extends SubsystemBase {
         currentState =
             isAutonomous ? CurrentState.SCORE_RIGHT_AUTO_L4 : CurrentState.SCORE_RIGHT_TELEOP_L4;
         break;
+      case SCORE_L1:
+        currentState =
+          isAutonomous ? CurrentState.SCORE_AUTO_L1 : CurrentState.SCORE_L1;
+        break;
+      case SCORE_L2:
+        currentState =
+          isAutonomous ? CurrentState.SCORE_AUTO_L2 : CurrentState.SCORE_L2;
+        break;
+      case SCORE_L3:
+        currentState =
+          isAutonomous ? CurrentState.SCORE_AUTO_L3 : CurrentState.SCORE_L3;
+        break;
+      case SCORE_L4:
+        currentState =
+          isAutonomous ? CurrentState.SCORE_AUTO_L4 : CurrentState.SCORE_L4;
+        break;
+      case OUTTAKE_CORAL:
+        currentState =
+          isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
       case TO_FEEDER:
         currentState = CurrentState.TO_FEEDER;
         break;
@@ -244,121 +284,194 @@ public class Superstructure extends SubsystemBase {
         break;
         // ---- Autonomous Score Cases
       case SCORE_LEFT_AUTO_L1:
-        scoreAutoL1(BranchType.LEFT);
+        autoAllighAUTOL1(BranchType.LEFT);
         break;
       case SCORE_RIGHT_AUTO_L1:
-        scoreAutoL1(BranchType.RIGHT);
+        autoAllighAUTOL1(BranchType.RIGHT);
         break;
       case SCORE_LEFT_AUTO_L2:
-        scoreAutoL2(BranchType.LEFT);
+        autoAllighAUTOL2(BranchType.LEFT);
         break;
       case SCORE_RIGHT_AUTO_L2:
-        scoreAutoL2(BranchType.RIGHT);
+        autoAllighAUTOL2(BranchType.RIGHT);
         break;
       case SCORE_LEFT_AUTO_L3:
-        scoreAutoL3(BranchType.LEFT);
+        autoAllighAUTOL3(BranchType.LEFT);
         break;
       case SCORE_RIGHT_AUTO_L3:
-        scoreAutoL3(BranchType.RIGHT);
+        autoAllighAUTOL3(BranchType.RIGHT);
         break;
       case SCORE_LEFT_AUTO_L4:
-        scoreAutoL4(BranchType.LEFT);
+        autoAllighAUTOL4(BranchType.LEFT);
         break;
       case SCORE_RIGHT_AUTO_L4:
-        scoreAutoL4(BranchType.RIGHT);
+        autoAllighAUTOL4(BranchType.RIGHT);
         break;
         // ---- Teleop Scoring Cases
       case SCORE_LEFT_TELEOP_L1:
-        scoreL1Teleop(BranchType.LEFT);
+        autoAllignL1(BranchType.LEFT);
         break;
       case SCORE_RIGHT_TELEOP_L1:
-        scoreL1Teleop(BranchType.RIGHT);
+        autoAllignL1(BranchType.RIGHT);
         break;
       case SCORE_LEFT_TELEOP_L2:
-        scoreL2Teleop(BranchType.LEFT);
+        autoAllignL2(BranchType.LEFT);
         break;
       case SCORE_RIGHT_TELEOP_L2:
-        scoreL2Teleop(BranchType.RIGHT);
+        autoAllignL2(BranchType.RIGHT);
         break;
       case SCORE_LEFT_TELEOP_L3:
-        scoreL3Teleop(BranchType.LEFT);
+        autoAllignL3(BranchType.LEFT);
         break;
       case SCORE_RIGHT_TELEOP_L3:
-        scoreL3Teleop(BranchType.RIGHT);
+        autoAllignL3(BranchType.RIGHT);
         break;
       case SCORE_LEFT_TELEOP_L4:
-        scoreL4Teleop(BranchType.LEFT);
+        autoAllignL4(BranchType.LEFT);
         break;
       case SCORE_RIGHT_TELEOP_L4:
-        scoreL4Teleop(BranchType.RIGHT);
+        autoAllignL4(BranchType.RIGHT);
+        break;
+      case SCORE_L1:
+        goToL1();
+        break;
+      case SCORE_L2:
+        goToL2();
+        break;
+      case SCORE_L3:
+        goToL3();
+        break;
+      case SCORE_L4:
+        goToL4();
+        break;
+      case SCORE_AUTO_L1:
+        break;
+      case SCORE_AUTO_L2:
+        break;
+      case SCORE_AUTO_L3:
+        break;
+      case SCORE_AUTO_L4:
+        break;
+      case OUTTAKE_CORAL:
+        score(desiredReefLevel);
+        break;
+      case OUTTAKE_AUTO_CORAL:
+        scoreAuto(desiredReefLevel);
         break;
       case TO_FEEDER:
         rotateToFeeder();
         break;
       case INTAKE_CORAL:
+        intakeCoral();
         break;
       case TAKE_CORAL:
         break;
       case INTAKE_ALGAE:
+        intakeAlgae();
         break;
       case ALGAE_LOW_INTAKE:
+        intakeLowALgae();
         break;
       case ALGAE_HIGH_INTAKE:
+        intakeHighAlgae();
         break;
       case GO_PROCESSOR:
+        prepProcessor();
         break;
       case SCORE_PROCESSOR:
+        scoreProcessor();
         break;
       case GO_NET:
+        prepNet();
         break;
       case SCORE_NET:
+        scoreNet();
         break;
       case OVERRIDE_CORAL:
+        overrideIntakeCoral();
         break;
       case PREP_CLIMB:
+        prepClimb();
         break;
       case CLIMB:
+        climb();
         break;
     }
   }
 
   private void stopped() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
+    elevatorSub.setVoltage(Units.Volts.of(0));
   }
 
   private void home() {
-    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.ROBOT_RELATIVE);
+    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
+    elevatorSub.setPosition(ElevatorConstants.NONE.in(Units.Rotations));
   }
 
   // ==== Base Autonomous States
-  private void scoreAutoL1(BranchType branchType) {}
+  private void autoAllighAUTOL1(BranchType branchType) {}
 
-  private void scoreAutoL2(BranchType branchType) {}
+  private void autoAllighAUTOL2(BranchType branchType) {}
 
-  private void scoreAutoL3(BranchType branchType) {}
+  private void autoAllighAUTOL3(BranchType branchType) {}
 
-  private void scoreAutoL4(BranchType branchType) {}
+  private void autoAllighAUTOL4(BranchType branchType) {}
 
   // ==== Teleop States
   // -- Score States
-  private void scoreL1Teleop(BranchType branchType) {
+  private void autoAllignL1(BranchType branchType) {
     swerveSub.setDesiredPose(
         getDesiredReef(branchType == BranchType.LEFT), SwerveSubsystem.maxMetersToReef);
   }
 
-  private void scoreL2Teleop(BranchType branchType) {
+  private void autoAllignL2(BranchType branchType) {
     swerveSub.setDesiredPose(
         getDesiredReef(branchType == BranchType.LEFT), SwerveSubsystem.maxMetersToReef);
   }
 
-  private void scoreL3Teleop(BranchType branchType) {
+  private void autoAllignL3(BranchType branchType) {
     swerveSub.setDesiredPose(
         getDesiredReef(branchType == BranchType.LEFT), SwerveSubsystem.maxMetersToReef);
   }
 
-  private void scoreL4Teleop(BranchType branchType) {
+  private void autoAllignL4(BranchType branchType) {
     swerveSub.setDesiredPose(
         getDesiredReef(branchType == BranchType.LEFT), SwerveSubsystem.maxMetersToReef);
+  }
+
+  private void goToL1() {}
+
+  private void goToL2() {}
+
+  private void goToL3() {}
+
+  private void goToL4() {}
+
+  private void score(ReefLevel level) {
+    switch(level) {
+      case L1:
+        break;
+      case L2:
+        break;
+      case L3:
+        break;
+      case L4:
+        break;
+    }
+  }
+
+  private void scoreAuto(ReefLevel level) {
+    switch(level) {
+      case L1:
+        break;
+      case L2:
+        break;
+      case L3:
+        break;
+      case L4:
+        break;
+    }
   }
 
   // -- Feeder States

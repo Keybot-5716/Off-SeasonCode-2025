@@ -33,6 +33,11 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -44,6 +49,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem drive;
+  private final ElevatorSubsystem elevator;
   private final Superstructure superstructure;
 
   // Controller
@@ -66,7 +72,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driver_controller);
-        superstructure = new Superstructure(drive);
+        elevator =
+            new ElevatorSubsystem(
+                new ElevatorIOTalonFX());
+        superstructure = new Superstructure(drive, elevator);
 
         break;
 
@@ -80,8 +89,10 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
-
-        superstructure = new Superstructure(drive);
+        elevator =
+            new ElevatorSubsystem(
+                new ElevatorIOSim());
+        superstructure = new Superstructure(drive, elevator);
 
         break;
 
@@ -95,8 +106,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driver_controller);
-
-        superstructure = new Superstructure(drive);
+        elevator =
+            new ElevatorSubsystem(new ElevatorIO(){}); 
+        superstructure = new Superstructure(drive, elevator);
 
         break;
     }
@@ -177,10 +189,18 @@ public class RobotContainer {
     controller
         .rightBumper()
         .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
-    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
-    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
-    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
-    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
+    controller
+        .povUp()
+        .onTrue(superstructure.setMode1OperatorSystem());
+    controller
+        .povRight()
+        .onTrue(superstructure.setMode2OperatorSystem());
+    controller
+        .povDown()
+        .onTrue(superstructure.setMode3OperatorSystem());
+    controller
+        .povLeft()
+        .onTrue(superstructure.setMode4OperatorSystem());
   }
 
   public Command getAutonomousCommand() {
