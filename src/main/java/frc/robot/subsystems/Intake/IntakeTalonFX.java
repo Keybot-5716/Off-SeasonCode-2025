@@ -9,22 +9,22 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public class IntakeTalonFX implements IntakeIO{
+public class IntakeTalonFX implements IntakeIO {
 
-    private final TalonFX motor;
-    private final TalonFXConfiguration config = new TalonFXConfiguration();
+  private final TalonFX motor;
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
 
-    private final VoltageOut voltageOutRequest = new VoltageOut(0);
-    private final MotionMagicExpoVoltage motionMagicEVRequest = new MotionMagicExpoVoltage(0);
+  private final VoltageOut voltageOutRequest = new VoltageOut(0);
+  private final MotionMagicExpoVoltage motionMagicEVRequest = new MotionMagicExpoVoltage(0);
 
-    public IntakeTalonFX() {
-        motor = new TalonFX(IntakeConstants.INTAKE_ID);
+  public IntakeTalonFX() {
+    motor = new TalonFX(IntakeConstants.INTAKE_ID);
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
 
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
@@ -106,4 +106,3 @@ public class IntakeTalonFX implements IntakeIO{
     motor.getConfigurator().apply(config);
   }
 }
-

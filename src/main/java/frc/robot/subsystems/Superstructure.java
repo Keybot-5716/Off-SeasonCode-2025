@@ -16,7 +16,6 @@ import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -213,27 +212,22 @@ public class Superstructure extends SubsystemBase {
             isAutonomous ? CurrentState.SCORE_RIGHT_AUTO_L4 : CurrentState.SCORE_RIGHT_TELEOP_L4;
         break;
       case SCORE_L1:
-        currentState =
-          isAutonomous ? CurrentState.SCORE_AUTO_L1 : CurrentState.SCORE_L1;
+        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L1 : CurrentState.SCORE_L1;
         break;
       case SCORE_L2:
-        currentState =
-          isAutonomous ? CurrentState.SCORE_AUTO_L2 : CurrentState.SCORE_L2;
+        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L2 : CurrentState.SCORE_L2;
         break;
       case SCORE_L3:
-        currentState =
-          isAutonomous ? CurrentState.SCORE_AUTO_L3 : CurrentState.SCORE_L3;
+        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L3 : CurrentState.SCORE_L3;
         break;
       case SCORE_L4:
-        currentState =
-          isAutonomous ? CurrentState.SCORE_AUTO_L4 : CurrentState.SCORE_L4;
+        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L4 : CurrentState.SCORE_L4;
         break;
       case RESET:
         currentState = CurrentState.RESET;
         break;
       case OUTTAKE_CORAL:
-        currentState =
-          isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
+        currentState = isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
       case TO_FEEDER:
         currentState = CurrentState.TO_FEEDER;
         break;
@@ -448,23 +442,27 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void goToL1() {
-    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1.in(Units.Rotations));
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1.in(Units.Rotations));
   }
 
   private void goToL2() {
-    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2.in(Units.Rotations));
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2.in(Units.Rotations));
   }
 
   private void goToL3() {
-    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3.in(Units.Rotations));
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3.in(Units.Rotations));
   }
 
   private void goToL4() {
-    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4.in(Units.Rotations));
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4.in(Units.Rotations));
   }
 
   private void score(ReefLevel level) {
-    switch(level) {
+    switch (level) {
       case L1:
         break;
       case L2:
@@ -477,7 +475,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void scoreAuto(ReefLevel level) {
-    switch(level) {
+    switch (level) {
       case L1:
         break;
       case L2:
@@ -633,12 +631,11 @@ public class Superstructure extends SubsystemBase {
         () -> robotMode == RobotMode.CORAL);
   }
 
-  //SCORE COMMAND
+  // SCORE COMMAND
   public Command scoreCommand(BranchType type) {
     return Commands.sequence(
-      superstructureCommand(DesiredState.SCORE_LEFT_L1),
-      superstructureCommand(DesiredState.SCORE_L1),
-      Commands.waitUntil(()->elevatorSub.isAtDesiredPos())
-    );
+        superstructureCommand(DesiredState.SCORE_LEFT_L1),
+        superstructureCommand(DesiredState.SCORE_L1),
+        Commands.waitUntil(() -> elevatorSub.isAtDesiredPos()));
   }
 }

@@ -37,7 +37,6 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -72,9 +71,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driver_controller);
-        elevator =
-            new ElevatorSubsystem(
-                new ElevatorIOTalonFX());
+        elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         superstructure = new Superstructure(drive, elevator);
 
         break;
@@ -89,9 +86,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
-        elevator =
-            new ElevatorSubsystem(
-                new ElevatorIOSim());
+        elevator = new ElevatorSubsystem(new ElevatorIOSim());
         superstructure = new Superstructure(drive, elevator);
 
         break;
@@ -106,8 +101,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driver_controller);
-        elevator =
-            new ElevatorSubsystem(new ElevatorIO(){}); 
+        elevator = new ElevatorSubsystem(new ElevatorIO() {});
         superstructure = new Superstructure(drive, elevator);
 
         break;
@@ -189,18 +183,10 @@ public class RobotContainer {
     controller
         .rightBumper()
         .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
-    controller
-        .povUp()
-        .onTrue(superstructure.setMode1OperatorSystem());
-    controller
-        .povRight()
-        .onTrue(superstructure.setMode2OperatorSystem());
-    controller
-        .povDown()
-        .onTrue(superstructure.setMode3OperatorSystem());
-    controller
-        .povLeft()
-        .onTrue(superstructure.setMode4OperatorSystem());
+    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
+    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
+    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
+    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
   }
 
   public Command getAutonomousCommand() {

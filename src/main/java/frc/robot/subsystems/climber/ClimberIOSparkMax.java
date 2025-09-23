@@ -19,7 +19,7 @@ public class ClimberIOSparkMax implements ClimberIO {
   private final SparkClosedLoopController pidController = climberSparkMax.getClosedLoopController();
 
   public ClimberIOSparkMax() {
-    // Poner el límite
+    // Poner el límite!!!
     climberSparkMaxConfig.smartCurrentLimit(40);
 
     climberSparkMaxConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).p(0).i(0).d(0);
