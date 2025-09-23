@@ -59,14 +59,13 @@ public class IntakeTalonFX implements IntakeIO {
                 motor.getMotorVoltage(),
                 motor.getSupplyCurrent(),
                 motor.getDeviceTemp()),
-            motor.getPosition().getValueAsDouble(),
+            false,
             motor.getVelocity().getValueAsDouble(),
             motor.getMotorVoltage().getValueAsDouble(),
             motor.getSupplyCurrent().getValueAsDouble(),
             motor.getDeviceTemp().getValueAsDouble());
   }
 
-  @Override
   public void stop() {
     motor.stopMotor();
   }
@@ -76,28 +75,23 @@ public class IntakeTalonFX implements IntakeIO {
     motor.setControl(motionMagicEVRequest.withFeedForward(output));
   }
 
-  @Override
   public void setVoltage(double volts) {
     motor.setControl(voltageOutRequest.withOutput(volts));
   }
 
-  @Override
   public void setPosition(double position) {
     motor.setControl(motionMagicEVRequest.withPosition(position));
   }
 
-  @Override
   public void setNeutralModeBreak(boolean enable) {
     config.MotorOutput.NeutralMode = enable ? NeutralModeValue.Brake : NeutralModeValue.Coast;
     motor.getConfigurator().apply(config);
   }
 
-  @Override
   public void resetEncoder() {
     motor.setPosition(0);
   }
 
-  @Override
   public void setPID(double kP, double kI, double kD) {
     config.Slot0.kP = kP;
     config.Slot0.kI = kI;

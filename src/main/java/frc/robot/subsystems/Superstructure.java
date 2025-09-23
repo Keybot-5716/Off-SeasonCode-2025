@@ -523,8 +523,8 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Command superstructureCommand(DesiredState state) {
-    Command cmd = new InstantCommand(() -> setDesiredState(state));
-    return cmd;
+    return new InstantCommand(() -> setDesiredState(state));
+    
   }
 
   public RobotMode getCurrentRobotMode() {
