@@ -2,6 +2,10 @@ package frc.robot.subsystems.climber;
 
 import static frc.robot.subsystems.climber.ClimberConstants.CLIMBERSPARKMAXID;
 
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -22,13 +26,11 @@ public class ClimberIOSparkMax implements ClimberIO {
 
     climberSparkMaxConfig.idleMode(IdleMode.kBrake);
 
+    // Cambiar!!!
     climberSparkMaxConfig.softLimit.forwardSoftLimitEnabled(true).forwardSoftLimit(-2);
-    /*
-    * climberSparkMax.configure(
-       climberSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    *
-    */
 
+    climberSparkMax.configure(
+        climberSparkMaxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -40,5 +42,10 @@ public class ClimberIOSparkMax implements ClimberIO {
   public void updateInputs(ClimberIOInputs inputs) {
     inputs.sparkAppliedVolts = climberSparkMax.getAppliedOutput();
     inputs.sparkTemp = climberSparkMax.getMotorTemperature();
+  }
+
+  @Override
+  public void setSparkPosition(double position) {
+    pidController.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 }

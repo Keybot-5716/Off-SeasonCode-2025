@@ -17,4 +17,7 @@ public interface ClimberIO {
 
   // Pone el voltaje
   public default void setSparkMaxVoltage(double voltage) {}
+
+  // Pone la posición del motor
+  public default void setSparkPosition(double position) {}
 }
