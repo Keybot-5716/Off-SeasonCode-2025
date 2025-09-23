@@ -413,7 +413,7 @@ public class Superstructure extends SubsystemBase {
 
   private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
-    elevatorSub.setPosition(ElevatorConstants.NONE.in(Units.Rotations));
+    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
   }
 
   // ==== Base Autonomous States
