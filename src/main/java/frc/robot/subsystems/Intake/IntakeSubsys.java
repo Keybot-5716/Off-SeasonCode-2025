@@ -104,7 +104,7 @@ public class IntakeSubsys extends SubsystemBase {
     return switch (desiredState) {
       case HOME -> SubsystemState.HOMING;
       case STOPPED -> SubsystemState.STOPPING;
-      case PREP_LVL -> SubsystemState.PREPARING_LVL;
+      case DEPLOYED -> SubsystemState.DEPLOYING;
       case MANUAL -> SubsystemState.MANUAL;
       default -> SubsystemState.STOPPING;
     };
