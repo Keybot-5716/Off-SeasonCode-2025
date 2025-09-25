@@ -129,9 +129,10 @@ public class Superstructure extends SubsystemBase {
   // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
-  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub) {
+  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub, IntakeSubsys intakeSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
+    this.intakeSub = intakeSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
@@ -403,11 +404,13 @@ public class Superstructure extends SubsystemBase {
   private void stopped() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED);
+    intakeSub.setDesiredState(IntakeSubsys.DesiredState.STOPPED);
   }
 
   private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
+    intakeSub.setDesiredState(IntakeSubsys.DesiredState.HOME);
   }
 
   // ==== Base Autonomous States
@@ -494,7 +497,9 @@ public class Superstructure extends SubsystemBase {
 
   // -- Coral States
 
-  private void intakeCoral() {}
+  private void intakeCoral() {
+    intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
+  }
 
   private void overrideIntakeCoral() {}
 

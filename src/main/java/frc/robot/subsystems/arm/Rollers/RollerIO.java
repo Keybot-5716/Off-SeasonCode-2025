@@ -11,7 +11,6 @@ public interface RollerIO {
 
   record RollerIOData(
       boolean motorConnected,
-      boolean intaking,
       double velocityRPS,
       double RollerappliedVoltage,
       double RollercurrentAmps,
