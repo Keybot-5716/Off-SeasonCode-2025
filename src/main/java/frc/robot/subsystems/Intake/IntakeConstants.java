@@ -9,9 +9,7 @@ public class IntakeConstants {
   public static final double MIN_OFFSET = 0;
   public static final Angle NONE = Units.Rotations.of(0);
 
-
-
   // INTAKE POSITIONS
-  public static final Deployed = Units.Rotations.of(0);
-  public static final Retrieved = Units.Rotations.of(0);
+  public static final Angle Deployed = Units.Rotations.of(0);
+  public static final Angle Retrieved = Units.Rotations.of(0);
 }

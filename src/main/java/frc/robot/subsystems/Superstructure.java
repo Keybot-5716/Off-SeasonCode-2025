@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.Intake.IntakeSubsys;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
@@ -23,6 +24,7 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem swerveSub;
   private final ElevatorSubsystem elevatorSub;
+  private final IntakeSubsys intakeSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -129,7 +131,8 @@ public class Superstructure extends SubsystemBase {
   // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
-  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub, IntakeSubsys intakeSub) {
+  public Superstructure(
+      SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub, IntakeSubsys intakeSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
     this.intakeSub = intakeSub;
@@ -404,13 +407,13 @@ public class Superstructure extends SubsystemBase {
   private void stopped() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED);
-    intakeSub.setDesiredState(IntakeSubsys.DesiredState.STOPPED);
+    // intakeSub.setDesiredState(IntakeSubsys.DesiredState.STOPPED);
   }
 
   private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
-    intakeSub.setDesiredState(IntakeSubsys.DesiredState.HOME);
+    // intakeSub.setDesiredState(IntakeSubsys.DesiredState.HOME);
   }
 
   // ==== Base Autonomous States
@@ -498,7 +501,7 @@ public class Superstructure extends SubsystemBase {
   // -- Coral States
 
   private void intakeCoral() {
-    intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
+    //   intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
   }
 
   private void overrideIntakeCoral() {}

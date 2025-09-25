@@ -6,7 +6,7 @@ public interface RollerIO {
 
   @AutoLog
   class RollerIOInputs {
-    public RollerIOData data = new RollerIOData(false, false, 0.0, 0.0, 0.0, 0.0);
+    public RollerIOData data = new RollerIOData(false, 0.0, 0.0, 0.0, 0.0);
   }
 
   record RollerIOData(
