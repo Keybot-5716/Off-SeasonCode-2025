@@ -1,5 +1,7 @@
 package frc.robot.subsystems.arm.Rollers;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Superstructure.DesiredState;
 
@@ -7,7 +9,7 @@ public class RollerSubsystem extends SubsystemBase {
   private final RollerIO io;
   private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
-  private double desiredRollersPosition;
+  private Angle desiredSpeedRollers;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.DEFAULT;
@@ -21,10 +23,59 @@ public class RollerSubsystem extends SubsystemBase {
   }
 
   public enum SubsystemState {
-    SCORING,
-    TAKING_CORAL,
+    REVERSING,
+    FORWARDING,
     DEFAULT,
   }
 
-  public void setRollerSpeed(double speed) {}
+  public RollerSubsystem(RollerIO io) {
+    this.io = io;
+  }
+
+  /*
+   * (Se debe poner esto?)
+   * @Override
+  public void periodic(){
+    io.updateInputs(inputs);
+    Logger.processInputs("Rollers", inputs);
+  }
+  */
+
+  public void setRollerSpeed(double speed) {
+    io.setRollerSpeed(speed);
+    // dudas
+    desiredSpeedRollers = Units.Rotations.of(speed);
+  }
+
+  public SubsystemState transitions() {
+    return switch (desiredState) {
+      case DEFAULT -> SubsystemState.DEFAULT;
+      case REVERSE -> SubsystemState.REVERSING;
+      case FORWARD -> SubsystemState.FORWARDING;
+      default -> SubsystemState.DEFAULT;
+    };
+  }
+
+  public void applyStates() {
+    switch (subsystemState) {
+      case DEFAULT:
+        io.stopRoller();
+        break;
+      case FORWARDING:
+        io.runOpenLoop(desiredOutput);
+        break;
+      case REVERSING:
+        io.runOpenLoop(desiredOutput);
+        break;
+    }
+  }
+
+  public void setDesiredState(DesiredState desiredState) {
+    this.desiredState = desiredState;
+  }
+
+  public void setDesiredState(DesiredState desiredState, double speedRollers) {
+    this.desiredState = desiredState;
+    this.desiredSpeedRollers = desiredSpeedRollers;
+  }
 }

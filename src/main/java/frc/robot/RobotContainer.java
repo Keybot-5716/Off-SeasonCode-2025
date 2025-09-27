@@ -29,6 +29,8 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
+import frc.robot.subsystems.arm.Rollers.RollerIO;
+import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -52,6 +54,7 @@ public class RobotContainer {
   private final SwerveSubsystem drive;
   private final ElevatorSubsystem elevator;
   private final IntakeSubsys intake;
+  private final RollerSubsystem rollers;
   private final Superstructure superstructure;
 
   // Controller
@@ -77,6 +80,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
+        rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
 
@@ -93,6 +97,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIOSim());
         intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
+        rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
 
@@ -109,6 +114,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
+        rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
     }

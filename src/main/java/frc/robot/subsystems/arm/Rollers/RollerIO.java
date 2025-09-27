@@ -3,7 +3,7 @@ package frc.robot.subsystems.arm.Rollers;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface RollerIO {
-  
+
   @AutoLog
   public static class RollerIOInputs {
     RollerIOData data = new RollerIOData(false, 0.0, 0.0, 0.0, 0.0);
