@@ -653,6 +653,6 @@ public class Superstructure extends SubsystemBase {
         Commands.waitUntil(() -> elevatorSub.isAtDesiredPos()));
   }
 
-  //Sketch Intake Command
-  
+  // Sketch Intake Command
+
 }

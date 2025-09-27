@@ -1,18 +1,14 @@
 package frc.robot.subsystems.Intake;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.Intake.IntakeIO.IntakeIOInputs;
-import frc.robot.subsystems.elevator.ElevatorIO;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsys extends SubsystemBase {
@@ -58,9 +54,9 @@ public class IntakeSubsys extends SubsystemBase {
     motorDisconnected.set(
         !motorConnectedDebouncer.calculate(inputs.data.motorConnected() && !Robot.isJITing()));
 
-    //Logger.recordOutput("Intake/Current Position", getElevatorPosInRotations());
+    // Logger.recordOutput("Intake/Current Position", getElevatorPosInRotations());
     Logger.recordOutput("Intake/Desired Position", lastDesiredAngle.in(Units.Rotations));
-    //Logger.recordOutput("Intake/IsAtDesiredPosition", isAtDesiredPos());
+    // Logger.recordOutput("Intake/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Intake/ElevatorIndividualState", lastDesiredState);
 
     lastDesiredState = this.desiredState;
@@ -87,10 +83,10 @@ public class IntakeSubsys extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        //io.setPosition(IntakeConstants.NONE.in(Units.Rotations));
+        // io.setPosition(IntakeConstants.NONE.in(Units.Rotations));
         break;
       case STOPPING:
-        //io.stop();
+        // io.stop();
         break;
       case MANUAL:
         io.runOpenLoop(desiredOutput);
@@ -101,12 +97,12 @@ public class IntakeSubsys extends SubsystemBase {
   public void setDesiredState(DesiredState desiredState) {
     this.desiredState = desiredState;
   }
-/* 
-  public void setDesiredState(DesiredState desiredState, double desiredIntakePosition) {
-    this.desiredState = desiredState;
-    this.desiredIntakePosition = desiredIntakePosition;
-  }
-*/
+  /*
+    public void setDesiredState(DesiredState desiredState, double desiredIntakePosition) {
+      this.desiredState = desiredState;
+      this.desiredIntakePosition = desiredIntakePosition;
+    }
+  */
   public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
     this.desiredOutput = desiredOutput;
