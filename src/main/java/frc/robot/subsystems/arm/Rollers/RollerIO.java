@@ -3,10 +3,10 @@ package frc.robot.subsystems.arm.Rollers;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface RollerIO {
-
+  
   @AutoLog
-  class RollerIOInputs {
-    public RollerIOData data = new RollerIOData(false, 0.0, 0.0, 0.0, 0.0);
+  public static class RollerIOInputs {
+    RollerIOData data = new RollerIOData(false, 0.0, 0.0, 0.0, 0.0);
   }
 
   record RollerIOData(

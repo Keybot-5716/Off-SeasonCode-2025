@@ -37,30 +37,6 @@ public class RollerTalonFX implements RollerIO {
     config.Slot0.kD = 0.1;
     config.Slot0.kS = 1.0;
 
-    // Freno
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    // Inversión del motor(CW- o sentido del reloj)
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-    // Habilitamos un límite hacia enfrente y ponemos ese límite
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.Rotations.of(0.28).in(Units.Rotations);
-
-    // Habilitamos un límite hacia atrás y ponemos ese límite
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.Rotations.of(-0.01).in(Units.Rotations);
-
-    // Ponemos la relación del sensor suponiendo que mide 2048 unidades por RPM
-    config.Feedback.SensorToMechanismRatio = 64;
-
-    // Ajustamos los valores de PID
-    config.Slot0.kP = 30;
-    config.Slot0.kD = 0.1;
-    config.Slot0.kS = 1.0;
-
     // Configuración con Motion Magic
     var motionMagicConfigs = config.MotionMagic;
 
