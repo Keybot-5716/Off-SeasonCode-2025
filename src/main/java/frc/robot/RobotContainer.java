@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Intake.IntakeIO;
 import frc.robot.subsystems.Intake.IntakeSubsys;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
@@ -74,7 +75,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
-        intake = new IntakeSubsys();
+        intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
 
         break;
@@ -90,7 +91,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOSim());
-        intake = new IntakeSubsys();
+        intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
 
         break;
@@ -106,7 +107,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
-        intake = new IntakeSubsys();
+        intake = new IntakeSubsys(new IntakeIO() {});
         superstructure = new Superstructure(drive, elevator, intake);
 
         break;

@@ -501,9 +501,7 @@ public class Superstructure extends SubsystemBase {
   // -- Coral States
 
   private void intakeCoral() {
-<<<<<<< Updated upstream
     //   intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
-=======
     intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
     /*
      * Aquí necesito entender bien la lógica de cuándo se activa el intake
@@ -511,7 +509,6 @@ public class Superstructure extends SubsystemBase {
      * O como funciona esa secuencia, o si en su defecto el driver la activa y desactiva
      * por lo mientras esto queda como sketch
      */
->>>>>>> Stashed changes
   }
 
   private void overrideIntakeCoral() {}
@@ -657,10 +654,5 @@ public class Superstructure extends SubsystemBase {
   }
 
   //Sketch Intake Command
-  public Command intakeCommand() {
-    return Commands.sequence(
-        superstructureCommand(DesiredState.DEPLOYED),
-        superstructureCommand(DesiredState.RETRIEVED),
-        Commands.waitUntil(() -> intakeSub.isAtDesiredState()));
-  }
+  
 }
