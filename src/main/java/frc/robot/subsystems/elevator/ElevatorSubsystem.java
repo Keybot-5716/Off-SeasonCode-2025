@@ -76,6 +76,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     io.setVoltage(voltage.in(Units.Volts));
   }
 
+  public void stopMotor() {
+    io.stop();
+  }
+
   public Angle getElevatorPosInRotations() {
     return Units.Rotations.of(inputs.data.positionRotations());
   }
@@ -113,16 +117,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        io.setPosition(ElevatorConstants.NONE.in(Units.Rotations));
+        setPosition(ElevatorConstants.NONE.in(Units.Rotations));
         break;
       case STOPPING:
-        io.stop();
+        stopMotor();
         break;
       case PREPARING_LVL:
-        io.setPosition(desiredElevatorPosition);
+        setPosition(desiredElevatorPosition);
         break;
       case MANUAL:
-        io.runOpenLoop(desiredOutput);
+        runOpenLoop(desiredOutput);
         break;
     }
   }
