@@ -449,22 +449,22 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL1() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1.in(Units.Rotations));
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
   }
 
   private void goToL2() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2.in(Units.Rotations));
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
   }
 
   private void goToL3() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3.in(Units.Rotations));
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
   }
 
   private void goToL4() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4.in(Units.Rotations));
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
   }
 
   private void score(ReefLevel level) {

@@ -22,7 +22,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       new Alert("Elevator Motor Disconnected! D:", AlertType.kWarning);
 
   private Angle lastDesiredAngle = Units.Rotations.of(0);
-  private double desiredElevatorPosition;
+  private Angle desiredElevatorPosition;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.STOPPED;
@@ -123,7 +123,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         stopMotor();
         break;
       case PREPARING_LVL:
-        setPosition(desiredElevatorPosition);
+        setPosition(desiredElevatorPosition.in(Units.Rotations));
         break;
       case MANUAL:
         runOpenLoop(desiredOutput);
@@ -135,12 +135,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
   }
 
-  public void setDesiredState(DesiredState desiredState, double desiredElevatorPosition) {
+  public void setDesiredState(DesiredState desiredState, Angle desiredElevatorPosition) {
     this.desiredState = desiredState;
     this.desiredElevatorPosition = desiredElevatorPosition;
   }
 
-  public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
+  public void setDesiredState(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
     this.desiredOutput = desiredOutput;
   }
