@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.Intake.IntakeSubsys;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
@@ -17,6 +15,7 @@ import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsys;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -448,23 +447,19 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void goToL1() {
-    elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
+    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
   }
 
   private void goToL2() {
-    elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
+    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
   }
 
   private void goToL3() {
-    elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
+    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
   }
 
   private void goToL4() {
-    elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+    elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
   }
 
   private void score(ReefLevel level) {
