@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsys extends SubsystemBase {
