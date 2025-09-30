@@ -59,6 +59,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Elevator/Desired Position", lastDesiredAngle.in(Units.Rotations));
     Logger.recordOutput("Elevator/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Elevator/ElevatorIndividualState", lastDesiredState);
+    Logger.recordOutput("Elevator/Current State", subsystemState);
 
     lastDesiredState = this.desiredState;
   }
@@ -131,13 +132,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
   }
 
-  public void setDesiredState(DesiredState desiredState, double desiredElevatorPosition) {
+  public void setDesiredState(DesiredState desiredState, Angle desiredElevatorPosition) {
     this.desiredState = desiredState;
-    this.desiredElevatorPosition = desiredElevatorPosition;
+    this.desiredElevatorPosition = desiredElevatorPosition.in(Units.Rotations);
   }
 
-  public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
+  public void setDesiredState(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
-    this.desiredOutput = desiredOutput;
+    this.desiredOutput = MathUtil.clamp(desiredOutput, -1, 1);
   }
 }

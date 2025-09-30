@@ -21,7 +21,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     motor = new TalonFX(ElevatorConstants.ELEVATOR_ID);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
