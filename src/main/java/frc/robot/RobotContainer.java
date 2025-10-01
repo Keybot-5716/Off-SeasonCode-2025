@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -165,7 +166,8 @@ public class RobotContainer {
         .a()
         .whileTrue(
             Commands.run(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
+                () ->
+                    elevator.setDesiredStateWithOutput(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
         .onFalse(
             Commands.runOnce(
                 () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
@@ -173,7 +175,9 @@ public class RobotContainer {
         .b()
         .whileTrue(
             Commands.run(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
+                () ->
+                    elevator.setDesiredStateWithOutput(
+                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
         .onFalse(
             Commands.runOnce(
                 () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
@@ -183,16 +187,21 @@ public class RobotContainer {
             Commands.runOnce(
                 () ->
                     elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2)));
+                        ElevatorSubsystem.DesiredState.PREP_LVL,
+                        ElevatorConstants.L2.in(Units.Rotations))));
     controller
         .y()
         .onTrue(
             Commands.runOnce(() -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.HOME)));
-    
+
     controller
         .povUp()
         .onTrue(
-            Commands.runOnce(() -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL,ElevatorConstants.L1)));
+            Commands.runOnce(
+                () ->
+                    elevator.setDesiredState(
+                        ElevatorSubsystem.DesiredState.PREP_LVL,
+                        ElevatorConstants.L1.in(Units.Rotations))));
   }
 
   public Command getAutonomousCommand() {

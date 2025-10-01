@@ -5,10 +5,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 
 public class ElevatorIOSim implements ElevatorIO {
 
-  private static final double carriageMass = 0.0;
-  private static final double stagesMass = 0.0;
-  private static final double drumRadiusMeters = 0.0;
-  private static final double travelLimitMeters = 0.0;
+  private static final double carriageMass = 10.0;
+  private static final double stagesMass = 5.0;
+  private static final double drumRadiusMeters = 0.0254;
+  private static final double travelLimitMeters = 1.35;
   private static final double g = 9.81;
   private static final double loopPeriodSec = 0.02;
 
@@ -23,7 +23,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
   private boolean closedLoop = false;
   private double setpoint = 0.0;
-  private double kP, kI, kD = 0.0;
+  private double kP = 7;
+  private double kI, kD = 0;
   private double integral = 0.0;
   private double prevError = 0.0;
 

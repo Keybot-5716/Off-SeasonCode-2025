@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -21,7 +20,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Alert motorDisconnected =
       new Alert("Elevator Motor Disconnected! D:", AlertType.kWarning);
 
-  private Angle lastDesiredAngle = Units.Rotations.of(0);
+  private double lastDesiredAngle = 0;
   private double desiredElevatorPosition;
   private double desiredOutput;
 
@@ -56,7 +55,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         !motorConnectedDebouncer.calculate(inputs.data.motorConnected() && !Robot.isJITing()));
 
     Logger.recordOutput("Elevator/Current Position", getElevatorPosInRotations());
-    Logger.recordOutput("Elevator/Desired Position", lastDesiredAngle.in(Units.Rotations));
+    Logger.recordOutput("Elevator/Desired Position", lastDesiredAngle);
     Logger.recordOutput("Elevator/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Elevator/ElevatorIndividualState", lastDesiredState);
     Logger.recordOutput("Elevator/Current State", subsystemState);
@@ -69,7 +68,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setPosition(double position) {
     io.setPosition(position);
-    lastDesiredAngle = Units.Rotations.of(position);
+    lastDesiredAngle = position;
   }
 
   public void runOpenLoop(double output) {
@@ -80,11 +79,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     io.setVoltage(voltage.in(Units.Volts));
   }
 
-  public Angle getElevatorPosInRotations() {
-    return Units.Rotations.of(inputs.data.positionRotations());
+  public double getElevatorPosInRotations() {
+    return inputs.data.positionRotations();
   }
 
-  public Angle getLastDesiredElevatorPosInRotations() {
+  public double getLastDesiredElevatorPosInRotations() {
     return lastDesiredAngle;
   }
 
@@ -92,16 +91,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     io.setPosition(0);
   }
 
-  public boolean isPositionedRotations(Angle position, Angle offset) {
-    return MathUtil.isNear(
-        position.in(Units.Rotations),
-        getElevatorPosInRotations().in(Units.Rotations),
-        offset.in(Units.Rotations));
+  public boolean isPositionedRotations(double position, double offset) {
+    return MathUtil.isNear(position, getElevatorPosInRotations(), offset);
   }
 
   public boolean isAtDesiredPos() {
     return isPositionedRotations(
-        getLastDesiredElevatorPosInRotations(), Units.Rotations.of(ElevatorConstants.MIN_OFFSET));
+        getLastDesiredElevatorPosInRotations(), ElevatorConstants.MIN_OFFSET);
   }
 
   public void stop() {
@@ -139,12 +135,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
   }
 
-  public void setDesiredState(DesiredState desiredState, Angle desiredElevatorPosition) {
+  public void setDesiredState(DesiredState desiredState, double desiredElevatorPosition) {
     this.desiredState = desiredState;
-    this.desiredElevatorPosition = desiredElevatorPosition.in(Units.Rotations);
+    this.desiredElevatorPosition = desiredElevatorPosition;
   }
 
-  public void setDesiredState(DesiredState desiredState, double desiredOutput) {
+  public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
     this.desiredOutput = desiredOutput;
   }

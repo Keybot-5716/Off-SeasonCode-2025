@@ -7,7 +7,7 @@ public class ElevatorConstants {
 
   public static final int ELEVATOR_ID = 17;
 
-  public static final double GEARBOX_REDUCTION = 20;
+  public static final int GEARBOX_REDUCTION = 20;
   public static final Angle FORWARD_THRESHOLD = Units.Rotations.of(0);
   public static final Angle REVERSE_THRESHOLD = Units.Rotations.of(1);
 

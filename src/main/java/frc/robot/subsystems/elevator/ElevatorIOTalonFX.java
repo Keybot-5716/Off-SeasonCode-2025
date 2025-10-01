@@ -40,7 +40,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 80;
+    config.MotionMagic.MotionMagicCruiseVelocity = (int) 100 / ElevatorConstants.GEARBOX_REDUCTION;
     config.MotionMagic.MotionMagicAcceleration = 160;
     config.MotionMagic.MotionMagicJerk = 1600;
 
