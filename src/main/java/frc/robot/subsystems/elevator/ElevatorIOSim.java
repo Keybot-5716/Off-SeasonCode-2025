@@ -23,10 +23,16 @@ public class ElevatorIOSim implements ElevatorIO {
 
   private boolean closedLoop = false;
   private double setpoint = 0.0;
-  private double kP = 7;
-  private double kI, kD = 0;
+
+  // PID gains (más suaves al inicio)
+  private double kP = 0.8;
+  private double kI = 0.0;
+  private double kD = 0.0;
   private double integral = 0.0;
   private double prevError = 0.0;
+
+  // Límite para anti-windup
+  private static final double INTEGRAL_LIMIT = 2.0;
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
@@ -34,19 +40,29 @@ public class ElevatorIOSim implements ElevatorIO {
 
     if (closedLoop) {
       double error = setpoint - position;
+
+      // Integral con anti-windup
       integral += error * loopPeriodSec;
+      integral = MathUtil.clamp(integral, -INTEGRAL_LIMIT, INTEGRAL_LIMIT);
+
       double derivative = (error - prevError) / loopPeriodSec;
       prevError = error;
 
       double output = kP * error + kI * integral + kD * derivative;
-      appliedVolts = MathUtil.clamp(output, -12.0, 12.0);
+
+      // Feedforward de gravedad (en voltios)
+      double gravityForce = totalMass * g; // Newtons
+      double torqueNeeded = gravityForce * drumRadiusMeters; // Nm
+      double currentNeeded = torqueNeeded / motorGB.KtNMPerAmp; // Amperes
+      double gravityFFVolts = currentNeeded * motorGB.rOhms; // V = I*R (aprox compensación)
+
+      appliedVolts = MathUtil.clamp(output + gravityFFVolts, -12.0, 12.0);
     }
 
     double motorSpeedRPS = velocityMPS / drumRadiusMeters;
     double motorTorqueNm = motorGB.KtNMPerAmp * motorGB.getCurrent(motorSpeedRPS, appliedVolts);
 
     double forceN = motorTorqueNm / drumRadiusMeters;
-
     double gravityForce = totalMass * g;
     double netForce = forceN - gravityForce;
 
