@@ -2,12 +2,14 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.Units;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -16,6 +18,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   private final VoltageOut voltageOutRequest = new VoltageOut(0);
   private final MotionMagicExpoVoltage motionMagicEVRequest = new MotionMagicExpoVoltage(0);
+  private final DutyCycleOut openloop = new DutyCycleOut(0);
 
   public ElevatorIOTalonFX() {
     motor = new TalonFX(ElevatorConstants.ELEVATOR_ID);
@@ -27,9 +30,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
 
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        ElevatorConstants.REVERSE_THRESHOLD.in(Units.Rotations);
 
-    config.Feedback.SensorToMechanismRatio = 0;
+    config.Feedback.SensorToMechanismRatio = ElevatorConstants.GEARBOX_REDUCTION;
 
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 30;
@@ -73,7 +77,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void runOpenLoop(double output) {
-    motor.setControl(motionMagicEVRequest.withFeedForward(output));
+    motor.setControl(openloop.withOutput(output));
   }
 
   @Override

@@ -34,4 +34,14 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final double loopPeriodSec = 0.02;
+
+  public static final boolean tuningMode = false;
+
+  public static boolean disableHAL = false;
+
+  public static void disableHAL() {
+    disableHAL = true;
+  }
 }

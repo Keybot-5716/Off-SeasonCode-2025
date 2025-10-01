@@ -16,6 +16,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -164,20 +165,34 @@ public class RobotContainer {
         .a()
         .whileTrue(
             Commands.run(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, 0.1),
-                elevator))
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
         .onFalse(
             Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED), elevator));
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
     controller
         .b()
         .whileTrue(
             Commands.run(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, -0.1),
-                elevator))
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
         .onFalse(
             Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED), elevator));
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+    controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    elevator.setDesiredState(
+                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2)));
+    controller
+        .y()
+        .onTrue(
+            Commands.runOnce(() -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.HOME)));
+    
+    controller
+        .povUp()
+        .onTrue(
+            Commands.runOnce(() -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL,ElevatorConstants.L1)));
   }
 
   public Command getAutonomousCommand() {

@@ -60,8 +60,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Elevator/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Elevator/ElevatorIndividualState", lastDesiredState);
     Logger.recordOutput("Elevator/Current State", subsystemState);
+    Logger.recordOutput("Elevator/Desired Output(manual)", desiredOutput);
 
     lastDesiredState = this.desiredState;
+    subsystemState = setStateTransitions();
+    applyStates();
   }
 
   public void setPosition(double position) {
@@ -101,6 +104,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         getLastDesiredElevatorPosInRotations(), Units.Rotations.of(ElevatorConstants.MIN_OFFSET));
   }
 
+  public void stop() {
+    io.stop();
+  }
+
   public SubsystemState setStateTransitions() {
     return switch (desiredState) {
       case HOME -> SubsystemState.HOMING;
@@ -114,16 +121,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        io.setPosition(ElevatorConstants.NONE.in(Units.Rotations));
+        setPosition(ElevatorConstants.NONE.in(Units.Rotations));
         break;
       case STOPPING:
-        io.stop();
+        stop();
         break;
       case PREPARING_LVL:
-        io.setPosition(desiredElevatorPosition);
+        setPosition(desiredElevatorPosition);
         break;
       case MANUAL:
-        io.runOpenLoop(desiredOutput);
+        runOpenLoop(desiredOutput);
         break;
     }
   }
@@ -139,6 +146,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setDesiredState(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
-    this.desiredOutput = MathUtil.clamp(desiredOutput, -1, 1);
+    this.desiredOutput = desiredOutput;
   }
 }
