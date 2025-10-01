@@ -31,7 +31,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        ElevatorConstants.REVERSE_THRESHOLD.in(Units.Rotations);
+        ElevatorConstants.REVERSE_THRESHOLD;
 
     config.Feedback.SensorToMechanismRatio = ElevatorConstants.GEARBOX_REDUCTION;
 

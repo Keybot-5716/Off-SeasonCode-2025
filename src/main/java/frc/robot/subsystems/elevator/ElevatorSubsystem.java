@@ -117,7 +117,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        setPosition(ElevatorConstants.NONE.in(Units.Rotations));
+        setPosition(ElevatorConstants.NONE);
         break;
       case STOPPING:
         stop();

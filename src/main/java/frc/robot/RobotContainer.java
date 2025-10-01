@@ -188,7 +188,7 @@ public class RobotContainer {
                 () ->
                     elevator.setDesiredState(
                         ElevatorSubsystem.DesiredState.PREP_LVL,
-                        ElevatorConstants.L2.in(Units.Rotations))));
+                        ElevatorConstants.L2)));
     controller
         .y()
         .onTrue(
@@ -201,7 +201,7 @@ public class RobotContainer {
                 () ->
                     elevator.setDesiredState(
                         ElevatorSubsystem.DesiredState.PREP_LVL,
-                        ElevatorConstants.L1.in(Units.Rotations))));
+                        ElevatorConstants.L1)));
   }
 
   public Command getAutonomousCommand() {
