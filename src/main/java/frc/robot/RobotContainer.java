@@ -192,15 +192,15 @@ public class RobotContainer {
     controller
         .a()
         .whileTrue(
-            Commands.runOnce(
+            Commands.run(
                 () -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
         .onFalse(
             Commands.runOnce(
-                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT, 0.0)));
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
     controller
         .b()
         .whileTrue(
-            Commands.runOnce(
+            Commands.run(
                 () -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
         .onFalse(
             Commands.runOnce(

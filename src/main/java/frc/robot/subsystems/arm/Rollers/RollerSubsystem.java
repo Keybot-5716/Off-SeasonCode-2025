@@ -12,7 +12,7 @@ public class RollerSubsystem extends SubsystemBase {
   private final RollerIO io;
   private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
-  private Angle desiredSpeedRollers;
+  private double desiredSpeedRollers;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.DEFAULT;
@@ -40,16 +40,19 @@ public class RollerSubsystem extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Rollers", inputs);
 
-    Logger.recordOutput("Rollers/Current Velocity", inputs.data.velocityRPS());
+    Logger.recordOutput("Rollers/Current Spped", desiredSpeedRollers);
     Logger.recordOutput("Rollers/Current State", subsystemState);
     Logger.recordOutput("Rollers/Desired State", desiredState);
+
+    subsystemState = transitions();
+    applyStates();
   }
 
   public void setRollerSpeed(double speed) {
     MathUtil.clamp(speed, 0, 1);
     io.setRollerSpeed(speed);
     // dudas
-    desiredSpeedRollers = Rotations.of(speed);
+    desiredSpeedRollers = speed;
   }
 
   public SubsystemState transitions() {
@@ -81,6 +84,6 @@ public class RollerSubsystem extends SubsystemBase {
 
   public void setDesiredState(DesiredState desiredState, double speedRollers) {
     this.desiredState = desiredState;
-    this.desiredSpeedRollers = desiredSpeedRollers;
+    this.desiredSpeedRollers = speedRollers;
   }
 }
