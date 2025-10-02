@@ -79,8 +79,8 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
         rollers = new RollerSubsystem(new RollerIO() {});
+        superstructure = new Superstructure(drive, elevator, intake, rollers);
 
         break;
 
@@ -96,8 +96,8 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOSim());
         intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
         rollers = new RollerSubsystem(new RollerIO() {});
+        superstructure = new Superstructure(drive, elevator, intake, rollers);
 
         break;
 
@@ -113,9 +113,8 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
         rollers = new RollerSubsystem(new RollerIO() {});
-
+        superstructure = new Superstructure(drive, elevator, intake, rollers);
         break;
     }
 
@@ -144,6 +143,7 @@ public class RobotContainer {
   }
 
   private void configureDriver(CommandXboxController controller) {
+    /*
     controller
         .leftTrigger()
         .onTrue(
@@ -187,19 +187,13 @@ public class RobotContainer {
         .a()
         .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
   }
-
+    */
+  }
   private void configureOperatorBindings(CommandXboxController controller) {
     controller
-        .leftBumper()
-        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
-    controller
-        .rightBumper()
-        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
-    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
-    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
-    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
-    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
+        .a();
   }
+    
 
   public Command getAutonomousCommand() {
     return autoChooser.get();
