@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -187,8 +186,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () ->
                     elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL,
-                        ElevatorConstants.L2)));
+                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2)));
     controller
         .y()
         .onTrue(
@@ -200,8 +198,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () ->
                     elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL,
-                        ElevatorConstants.L1)));
+                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1)));
   }
 
   public Command getAutonomousCommand() {

@@ -57,9 +57,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Elevator/Current Position", getElevatorPosInRotations());
     Logger.recordOutput("Elevator/Desired Position", lastDesiredAngle);
     Logger.recordOutput("Elevator/IsAtDesiredPosition", isAtDesiredPos());
-    Logger.recordOutput("Elevator/ElevatorIndividualState", lastDesiredState);
+    Logger.recordOutput("Elevator/Desired State", lastDesiredState);
     Logger.recordOutput("Elevator/Current State", subsystemState);
-    Logger.recordOutput("Elevator/Desired Output(manual)", desiredOutput);
 
     lastDesiredState = this.desiredState;
     subsystemState = setStateTransitions();
@@ -91,13 +90,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     io.setPosition(0);
   }
 
-  public boolean isPositionedRotations(double position, double offset) {
+  public boolean isPositioned(double position, double offset) {
     return MathUtil.isNear(position, getElevatorPosInRotations(), offset);
   }
 
   public boolean isAtDesiredPos() {
-    return isPositionedRotations(
-        getLastDesiredElevatorPosInRotations(), ElevatorConstants.MIN_OFFSET);
+    return isPositioned(getLastDesiredElevatorPosInRotations(), ElevatorConstants.MIN_OFFSET);
   }
 
   public void stop() {

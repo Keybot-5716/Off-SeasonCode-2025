@@ -4,12 +4,12 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Units;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -27,11 +27,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ElevatorConstants.FORWARD_THRESHOLD;
 
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        ElevatorConstants.REVERSE_THRESHOLD;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ElevatorConstants.REVERSE_THRESHOLD;
 
     config.Feedback.SensorToMechanismRatio = ElevatorConstants.GEARBOX_REDUCTION;
 
@@ -40,12 +39,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = (int) 100 / ElevatorConstants.GEARBOX_REDUCTION;
+    config.MotionMagic.MotionMagicCruiseVelocity = 80;
     config.MotionMagic.MotionMagicAcceleration = 160;
     config.MotionMagic.MotionMagicJerk = 1600;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-    config.Slot0.kP = 5;
+    config.Slot0.kP = 3;
     config.Slot0.kG = 0.5;
     config.Slot0.kS = 0.3;
 
@@ -87,7 +86,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPosition(double position) {
-    motor.setControl(motionMagicEVRequest.withPosition(position));
+    motor.setControl(new PositionVoltage(position));
   }
 
   @Override
