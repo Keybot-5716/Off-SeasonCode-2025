@@ -39,8 +39,6 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeSubsys;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -53,7 +51,6 @@ public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem drive;
   private final ElevatorSubsystem elevator;
-  private final IntakeSubsys intake;
   private final RollerSubsystem rollers;
   private final Superstructure superstructure;
 
@@ -78,8 +75,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
-        intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
+        superstructure = new Superstructure(drive, elevator);
         rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
@@ -95,8 +91,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOSim());
-        intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
+        superstructure = new Superstructure(drive, elevator);
         rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
@@ -112,8 +107,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
-        intake = new IntakeSubsys(new IntakeIO() {});
-        superstructure = new Superstructure(drive, elevator, intake);
+        superstructure = new Superstructure(drive, elevator);
         rollers = new RollerSubsystem(new RollerIO() {});
 
         break;
