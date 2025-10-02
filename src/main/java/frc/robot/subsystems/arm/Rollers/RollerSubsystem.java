@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Superstructure.DesiredState;
+import org.littletonrobotics.junction.Logger;
 
 public class RollerSubsystem extends SubsystemBase {
   private final RollerIO io;
@@ -34,14 +35,15 @@ public class RollerSubsystem extends SubsystemBase {
     this.io = io;
   }
 
-  /*
-   * (Se debe poner esto?)
-   * @Override
-  public void periodic(){
+  @Override
+  public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Rollers", inputs);
+
+    Logger.recordOutput("Rollers/Current Velocity", inputs.data.velocityRPS());
+    Logger.recordOutput("Rollers/Current State", subsystemState);
+    Logger.recordOutput("Rollers/Desired State", desiredState);
   }
-  */
 
   public void setRollerSpeed(double speed) {
     MathUtil.clamp(speed, 0, 1);

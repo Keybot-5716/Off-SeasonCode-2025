@@ -198,6 +198,14 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT, 0.0)));
     controller
+        .b()
+        .whileTrue(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT, 0.0)));
+    controller
         .leftBumper()
         .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
     controller
