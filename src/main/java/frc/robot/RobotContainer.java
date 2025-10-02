@@ -93,7 +93,6 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIOSim());
         superstructure = new Superstructure(drive, elevator);
         rollers = new RollerSubsystem(new RollerIO() {});
-
         break;
 
       default:
