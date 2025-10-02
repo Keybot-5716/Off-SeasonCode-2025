@@ -1,5 +1,8 @@
 package frc.robot.subsystems.arm.Rollers;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -46,7 +49,7 @@ public class RollerSubsystem extends SubsystemBase {
     MathUtil.clamp(speed, 0, 1);
     io.setRollerSpeed(speed);
     // dudas
-    desiredSpeedRollers = Units.Rotations.of(speed);
+    desiredSpeedRollers = Rotations.of(speed);
   }
 
   public SubsystemState transitions() {

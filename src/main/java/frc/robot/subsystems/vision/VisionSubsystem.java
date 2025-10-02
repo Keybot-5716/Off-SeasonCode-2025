@@ -1,3 +1,4 @@
+/* 
 package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
@@ -46,8 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
    * Returns the X angle to the best target, which can be used for simple servoing with vision.
    *
    * @param cameraIndex The index of the camera to use.
-   */
-  public Rotation2d getTargetX(int cameraIndex) {
+   public Rotation2d getTargetX(int cameraIndex) {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
@@ -172,3 +172,4 @@ public class VisionSubsystem extends SubsystemBase {
         Matrix<N3, N1> visionMeasurementStdDevs);
   }
 }
+  */
