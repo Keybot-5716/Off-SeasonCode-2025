@@ -1,4 +1,4 @@
-/* 
+/*
 package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;

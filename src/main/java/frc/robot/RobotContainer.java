@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Intake.IntakeIO;
+import frc.robot.subsystems.Intake.IntakeSubsys;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
@@ -39,8 +41,6 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.Intake.IntakeIO;
-import frc.robot.subsystems.Intake.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -115,6 +115,7 @@ public class RobotContainer {
         intake = new IntakeSubsys(new IntakeIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
         superstructure = new Superstructure(drive, elevator, intake, rollers);
+
         break;
     }
 
@@ -143,7 +144,6 @@ public class RobotContainer {
   }
 
   private void configureDriver(CommandXboxController controller) {
-    /*
     controller
         .leftTrigger()
         .onTrue(
@@ -187,13 +187,27 @@ public class RobotContainer {
         .a()
         .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
   }
-    */
-  }
+
   private void configureOperatorBindings(CommandXboxController controller) {
     controller
-        .a();
+        .a()
+        .whileTrue(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT, 0.0)));
+    controller
+        .leftBumper()
+        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
+    controller
+        .rightBumper()
+        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
+    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
+    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
+    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
+    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
   }
-    
 
   public Command getAutonomousCommand() {
     return autoChooser.get();

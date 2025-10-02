@@ -7,15 +7,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.Intake.IntakeSubsys;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeIntake;
 import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
+import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsys;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,6 +25,7 @@ public class Superstructure extends SubsystemBase {
   private final SwerveSubsystem swerveSub;
   private final ElevatorSubsystem elevatorSub;
   private final IntakeSubsys intakeSub;
+  private final RollerSubsystem rollerSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -131,10 +133,14 @@ public class Superstructure extends SubsystemBase {
   boolean isIntakeOverride = false;
 
   public Superstructure(
-      SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub, IntakeSubsys intakeSub) {
+      SwerveSubsystem swerveSub,
+      ElevatorSubsystem elevatorSub,
+      IntakeSubsys intakeSub,
+      RollerSubsystem rollerSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
     this.intakeSub = intakeSub;
+    this.rollerSub = rollerSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
