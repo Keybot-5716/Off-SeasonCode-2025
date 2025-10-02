@@ -13,35 +13,12 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.arm.ArmSubsystem;
-import frc.robot.subsystems.arm.Rollers.RollerIO;
-import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeSubsys;
-import frc.robot.commands.DriveCommands;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
-import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.arm.ArmIO;
@@ -187,43 +164,41 @@ public class RobotContainer {
         .whileTrue(
             Commands.run(
                 () ->
-                arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)));
-                    //elevator.setDesiredStateWithOutput(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
-        .onFalse(
-            Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+                arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)))
+                .onFalse(
+                    Commands.runOnce(
+                        () -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
+        
     controller
         .b()
         .whileTrue(
             Commands.run(
                 () ->
-                    elevator.setDesiredStateWithOutput(
-                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
+                    arm.setDesiredStateWithOutput(
+                        ArmSubsystem.DesiredState.MANUAL, -0.1)))
         .onFalse(
             Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+                () -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
     controller
         .povRight()
         .onTrue(
             Commands.runOnce(
                 () ->
-                    elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2)));
+                    arm.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L2)));
     controller
         .y()
         .onTrue(
-            Commands.runOnce(() -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.HOME)));
+            Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.HOME)));
 
     controller
         .povUp()
         .onTrue(
             Commands.runOnce(
                 () ->
-                    elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1)));
+                    arm.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL,ArmConstants.L1 )));
   }
-
+//
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return null;
   }
 }
