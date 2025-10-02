@@ -20,7 +20,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final Alert motorDisconnected =
       new Alert("Arm Motor Disconnected! D:", AlertType.kWarning);
 
-  private Angle lastDesiredAngle = Units.Rotations.of(0);
+  private double lastDesiredAngle = 0;
   private double desiredElevatorPosition;
   private double desiredOutput;
 
@@ -55,16 +55,19 @@ public class ArmSubsystem extends SubsystemBase {
         !motorConnectedDebouncer.calculate(inputs.data.motorConnected() && !Robot.isJITing()));
 
     Logger.recordOutput("Arm/Current Position", getArmPosInRotations());
-    Logger.recordOutput("Arm/Desired Position", lastDesiredAngle.in(Units.Rotations));
+    Logger.recordOutput("Arm/Desired Position", lastDesiredAngle);
     Logger.recordOutput("Arm/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Arm/IndividualState", lastDesiredState);
+    Logger.recordOutput("Arm/CurrentState", subsystemState);
 
     lastDesiredState = this.desiredState;
+    subsystemState = setStateTransitions();
+    applyStates();
   }
 
   public void setPosition(double position) {
     io.setPosition(position);
-    lastDesiredAngle = Units.Rotations.of(position);
+    lastDesiredAngle = position;
   }
 
   public void runOpenLoop(double output) {
@@ -75,11 +78,11 @@ public class ArmSubsystem extends SubsystemBase {
     io.setVoltage(voltage.in(Units.Volts));
   }
 
-  public Angle getArmPosInRotations() {
-    return Units.Rotations.of(inputs.data.positionRotations());
+  public double getArmPosInRotations() {
+    return inputs.data.positionRotations();
   }
 
-  public Angle getLastDesiredArmPosInRotations() {
+  public double getLastDesiredArmPosInRotations() {
     return lastDesiredAngle;
   }
 
@@ -87,16 +90,20 @@ public class ArmSubsystem extends SubsystemBase {
     io.setPosition(0);
   }
 
-  public boolean isPositionedRotations(Angle position, Angle offset) {
+  public boolean isPositionedRotations(double position, double offset) {
     return MathUtil.isNear(
-        position.in(Units.Rotations),
-        getArmPosInRotations().in(Units.Rotations),
-        offset.in(Units.Rotations));
+        position,
+        getArmPosInRotations(),
+        offset);
   }
 
   public boolean isAtDesiredPos() {
     return isPositionedRotations(
-        getLastDesiredArmPosInRotations(), Units.Rotations.of(ArmConstants.MIN_OFFSET));
+        getLastDesiredArmPosInRotations(), ArmConstants.MIN_OFFSET);
+  }
+
+  public void stop() {
+    io.stop();
   }
 
   public SubsystemState setStateTransitions() {
@@ -112,16 +119,16 @@ public class ArmSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        io.stop();
+        stop();
         break;
       case STOPPING:
-        io.stop();
+        stop();
         break;
       case PREPARING_LVL:
-        io.setPosition(desiredElevatorPosition);
+        setPosition(desiredElevatorPosition);
         break;
       case MANUAL:
-        io.runOpenLoop(desiredOutput);
+        runOpenLoop(desiredOutput);
         break;
     }
   }
