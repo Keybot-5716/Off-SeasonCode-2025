@@ -8,4 +8,11 @@ public class ArmConstants {
   public static final double GEARBOX_REDUCTION = 0;
   public static final double MIN_OFFSET = 0.1;
   public static final Angle NONE = Units.Rotations.of(0);
+  public static final double REST = (0.1);
+
+  public static final double L1 = 0.1;
+  public static final double L2 = 0.1;
+  public static final double L3 = 0.1;
+  public static final double L4 = 0.1;
+  public static final double TAKE_CORAL = 0.1;
 }

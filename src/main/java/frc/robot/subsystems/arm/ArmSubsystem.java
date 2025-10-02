@@ -21,7 +21,7 @@ public class ArmSubsystem extends SubsystemBase {
       new Alert("Arm Motor Disconnected! D:", AlertType.kWarning);
 
   private Angle lastDesiredAngle = Units.Rotations.of(0);
-  private double desiredElevatorPosition;
+  private double desiredArmPosition;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.STOPPED;
@@ -118,7 +118,7 @@ public class ArmSubsystem extends SubsystemBase {
         io.stop();
         break;
       case PREPARING_LVL:
-        io.setPosition(desiredElevatorPosition);
+        io.setPosition(desiredArmPosition);
         break;
       case MANUAL:
         io.runOpenLoop(desiredOutput);
@@ -130,9 +130,9 @@ public class ArmSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
   }
 
-  public void setDesiredState(DesiredState desiredState, double desiredElevatorPosition) {
+  public void setDesiredState(DesiredState desiredState, double desiredArmPosition) {
     this.desiredState = desiredState;
-    this.desiredElevatorPosition = desiredElevatorPosition;
+    this.desiredArmPosition = desiredArmPosition;
   }
 
   public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
