@@ -134,7 +134,7 @@ public class Superstructure extends SubsystemBase {
   boolean isIntakeOverride = false;
 
   public Superstructure(
-      SwerveSubsystem swerveSub, 
+      SwerveSubsystem swerveSub,
       ElevatorSubsystem elevatorSub,
       ArmSubsystem armSub,
       RollerSubsystem rollersSub) {
@@ -597,8 +597,8 @@ public class Superstructure extends SubsystemBase {
     Pose2d desiredReef = currentPose.nearest(reef);
     int closestIndex = reef.indexOf(desiredReef);
 
-    if(closestIndex > 3 && closestIndex < 10) {
-    leftRequest = !leftRequest;
+    if (closestIndex > 3 && closestIndex < 10) {
+      leftRequest = !leftRequest;
     }
 
     if (leftRequest && (closestIndex % 2 == 1)) {

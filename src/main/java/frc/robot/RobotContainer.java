@@ -26,7 +26,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
-import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.arm.ArmSubsystem;
@@ -40,7 +39,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -83,7 +81,7 @@ public class RobotContainer {
         arm = new ArmSubsystem(new ArmIOTalonFX());
         rollers = new RollerSubsystem(new RollerTalonFX());
         superstructure = new Superstructure(drive, elevator, arm, rollers);
-        
+
         break;
 
       case SIM:
@@ -96,7 +94,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
-        elevator = new ElevatorSubsystem(new ElevatorIO(){});
+        elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
         superstructure = new Superstructure(drive, elevator, arm, rollers);
@@ -113,7 +111,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driver_controller);
-        elevator = new ElevatorSubsystem(new ElevatorIO(){});
+        elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
         superstructure = new Superstructure(drive, elevator, arm, rollers);
@@ -214,11 +212,8 @@ public class RobotContainer {
         .x()
         .whileTrue(
             Commands.run(
-                () ->
-                    arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)))
-        .onFalse(
-            Commands.runOnce(
-                () -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
+                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)))
+        .onFalse(Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
     controller
         .y()
         .whileTrue(
@@ -229,24 +224,18 @@ public class RobotContainer {
         .onFalse(
             Commands.runOnce(
                 () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
-    controller 
+    controller
         .rightTrigger()
         .whileTrue(
-            Commands.run(
-                ()->
-                    rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
         .onFalse(
-            Commands.runOnce(
-                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller 
+            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+    controller
         .leftTrigger()
         .whileTrue(
-            Commands.run(
-                ()->
-                    rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
         .onFalse(
-            Commands.runOnce(
-                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

@@ -114,7 +114,8 @@ public class ArmSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        setPosition(ArmConstants.NONE);;
+        setPosition(ArmConstants.NONE);
+        ;
         break;
       case STOPPING:
         stop();
