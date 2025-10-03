@@ -1,12 +1,13 @@
 package frc.robot.subsystems.arm.Rollers;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Units;
 
 public class RollerTalonFX implements RollerIO {
   private TalonFX RollerMotor;
@@ -16,41 +17,50 @@ public class RollerTalonFX implements RollerIO {
   MotionMagicExpoVoltage positionVoltage = new MotionMagicExpoVoltage(0).withSlot(0);
 
   public RollerTalonFX() {
+    RollerMotor = new TalonFX(RollerConstants.ROLLER_MOTOR_ID);
 
-    // Aplicamos toda la configuración en un valor estático
-    // Modo neutral del motor cuando se desabilita (el brake es un freno)
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // Inversión del motor(CW- o sentido del reloj)
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    // Habilitamos un límite hacia enfrente y ponemos ese límite
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.Rotations.of(0.28).in(Units.Rotations);
-    // Habilitamos un límite hacia atrás y ponemos ese límite
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.Rotations.of(-0.01).in(Units.Rotations);
     // Ponemos la relación del sensor suponiendo que mide 2048 unidades por RPM
-    config.Feedback.SensorToMechanismRatio = 64;
+    config.Feedback.SensorToMechanismRatio = 5;
     // Ajustamos los valores de PID
     config.Slot0.kP = 30;
     config.Slot0.kD = 0.1;
     config.Slot0.kS = 1.0;
 
-    // Configuración con Motion Magic
-    var motionMagicConfigs = config.MotionMagic;
-
-    // Ponemos el máximo de rotaciones que va a poder dar por segundo
-    motionMagicConfigs.MotionMagicCruiseVelocity = 80;
-
-    // Ponemos el control de la aceleración o desaceleración
-    motionMagicConfigs.MotionMagicAcceleration = 160;
-
-    // Ponemos el control del cambio de la aceleración
-    motionMagicConfigs.MotionMagicJerk = 1600;
-
     RollerMotor.setPosition(0);
     RollerMotor.getConfigurator().apply(config);
+  }
+
+  @Override
+  public void updateInputs(RollerIOInputs inputs) {
+    inputs.data =
+        new RollerIOData(
+            BaseStatusSignal.isAllGood(
+                RollerMotor.getPosition(),
+                RollerMotor.getVelocity(),
+                RollerMotor.getMotorVoltage(),
+                RollerMotor.getSupplyCurrent(),
+                RollerMotor.getDeviceTemp()),
+            RollerMotor.getVelocity().getValueAsDouble(),
+            RollerMotor.getMotorVoltage().getValueAsDouble(),
+            RollerMotor.getSupplyCurrent().getValueAsDouble(),
+            RollerMotor.getDeviceTemp().getValueAsDouble());
+  }
+
+  @Override
+  public void setRollerSpeed(double speed) {
+    RollerMotor.setControl(new DutyCycleOut(speed));
+  }
+
+  @Override
+  public void stopRoller() {
+    RollerMotor.stopMotor();
+  }
+
+  @Override
+  public void runOpenLoop(double output) {
+    RollerMotor.setControl(new DutyCycleOut(output));
   }
 
   /*

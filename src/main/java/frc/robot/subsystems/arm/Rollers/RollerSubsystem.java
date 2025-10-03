@@ -1,6 +1,5 @@
 package frc.robot.subsystems.arm.Rollers;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -44,7 +43,6 @@ public class RollerSubsystem extends SubsystemBase {
   }
 
   public void setRollerSpeed(double speed) {
-    MathUtil.clamp(speed, 0, 1);
     io.setRollerSpeed(speed);
     desiredSpeedRollers = speed;
   }

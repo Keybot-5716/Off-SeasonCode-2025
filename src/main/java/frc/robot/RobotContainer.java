@@ -38,6 +38,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -225,17 +226,24 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
     controller
-        .rightTrigger()
+        .rightBumper()
         .whileTrue(
-            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
     controller
-        .leftTrigger()
+        .leftBumper()
         .whileTrue(
-            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+    controller
+        .povUp()
+        .whileTrue(
+            Commands.run(
+                () ->
+                    elevator.setDesiredState(
+                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3)));
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

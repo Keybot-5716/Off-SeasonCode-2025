@@ -5,8 +5,8 @@ public class ElevatorConstants {
   public static final int ELEVATOR_ID = 17;
 
   public static final int GEARBOX_REDUCTION = 20;
-  public static final double FORWARD_THRESHOLD = 0;
-  public static final double REVERSE_THRESHOLD = 1;
+  public static final double FORWARD_THRESHOLD = 3.25;
+  public static final double REVERSE_THRESHOLD = 0.1;
 
   public static final double MIN_OFFSET = 0.3;
 

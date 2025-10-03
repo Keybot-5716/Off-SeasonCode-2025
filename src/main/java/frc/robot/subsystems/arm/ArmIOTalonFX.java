@@ -24,11 +24,11 @@ public class ArmIOTalonFX implements ArmIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 90;
 
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 3;
 
     config.Feedback.SensorToMechanismRatio = 0;
 
@@ -46,7 +46,6 @@ public class ArmIOTalonFX implements ArmIO {
     config.Slot0.kG = 0.5;
     config.Slot0.kS = 0.3;
 
-    motor.setPosition(0);
     motor.getConfigurator().apply(config);
   }
 
