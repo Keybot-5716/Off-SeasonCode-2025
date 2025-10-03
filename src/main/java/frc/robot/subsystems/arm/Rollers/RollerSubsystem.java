@@ -8,7 +8,6 @@ public class RollerSubsystem extends SubsystemBase {
   private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
   private double desiredSpeedRollers;
-  private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.DEFAULT;
   private SubsystemState subsystemState = SubsystemState.DEFAULT;
@@ -44,7 +43,6 @@ public class RollerSubsystem extends SubsystemBase {
 
   public void setRollerSpeed(double speed) {
     io.setRollerSpeed(speed);
-    desiredSpeedRollers = speed;
   }
 
   public void stop() {
@@ -66,10 +64,10 @@ public class RollerSubsystem extends SubsystemBase {
         stop();
         break;
       case FORWARDING:
-        setRollerSpeed(desiredOutput);
+        setRollerSpeed(desiredSpeedRollers);
         break;
       case REVERSING:
-        setRollerSpeed(-desiredOutput);
+        setRollerSpeed(-desiredSpeedRollers);
         break;
     }
   }

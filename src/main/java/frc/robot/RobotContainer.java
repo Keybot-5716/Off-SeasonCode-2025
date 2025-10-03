@@ -38,7 +38,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -59,8 +58,8 @@ public class RobotContainer {
   private final Superstructure superstructure;
 
   // Controller
-  private final CommandXboxController driver_controller = new CommandXboxController(0);
-  private final CommandXboxController operator_controller = new CommandXboxController(1);
+  private final CommandXboxController driver_controller = new CommandXboxController(1);
+  private final CommandXboxController operator_controller = new CommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -219,12 +218,8 @@ public class RobotContainer {
         .y()
         .whileTrue(
             Commands.run(
-                () ->
-                    elevator.setDesiredStateWithOutput(
-                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
-        .onFalse(
-            Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, -0.1)))
+        .onFalse(Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
     controller
         .rightBumper()
         .whileTrue(
@@ -242,6 +237,7 @@ public class RobotContainer {
               () -> 
                 rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
+<<<<<<< Updated upstream
             Commands.runOnce(
               () -> 
                 rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
@@ -252,6 +248,12 @@ public class RobotContainer {
                 () ->
                     elevator.setDesiredState(
                         ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3)));
+=======
+            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+    controller.povUp().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
+
+    controller.povUpRight().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
+>>>>>>> Stashed changes
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

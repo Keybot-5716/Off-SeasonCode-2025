@@ -20,7 +20,7 @@ public class RollerTalonFX implements RollerIO {
     RollerMotor = new TalonFX(RollerConstants.ROLLER_MOTOR_ID);
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     // Ponemos la relación del sensor suponiendo que mide 2048 unidades por RPM
     config.Feedback.SensorToMechanismRatio = 5;
     // Ajustamos los valores de PID
@@ -28,7 +28,6 @@ public class RollerTalonFX implements RollerIO {
     config.Slot0.kD = 0.1;
     config.Slot0.kS = 1.0;
 
-    RollerMotor.setPosition(0);
     RollerMotor.getConfigurator().apply(config);
   }
 

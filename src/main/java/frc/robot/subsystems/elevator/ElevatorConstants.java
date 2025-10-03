@@ -4,7 +4,7 @@ public class ElevatorConstants {
 
   public static final int ELEVATOR_ID = 17;
 
-  public static final int GEARBOX_REDUCTION = 20;
+  public static final int GEARBOX_REDUCTION = 60;
   public static final double FORWARD_THRESHOLD = 3.25;
   public static final double REVERSE_THRESHOLD = 0.1;
 
@@ -14,9 +14,9 @@ public class ElevatorConstants {
   public static final double REST = 0.1;
 
   // CORAL
-  public static final double L1 = 5;
-  public static final double L2 = 10;
-  public static final double L3 = 0.1;
+  public static final double L1 = 0.12;
+  public static final double L2 = 0.12;
+  public static final double L3 = 1.5;
   public static final double L4 = 0.1;
   public static final double TAKE_CORAL = 0.1;
 

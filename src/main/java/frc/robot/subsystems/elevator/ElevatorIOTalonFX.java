@@ -23,7 +23,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public ElevatorIOTalonFX() {
     motor = new TalonFX(ElevatorConstants.ELEVATOR_ID);
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -48,7 +48,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kG = 0.5;
     config.Slot0.kS = 0.3;
 
-    motor.setPosition(0);
     motor.getConfigurator().apply(config);
   }
 

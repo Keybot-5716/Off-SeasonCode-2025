@@ -467,7 +467,9 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
-    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
+    if (elevatorSub.isAtDesiredPos()) {
+      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
+    }
   }
 
   private void goToL4() {
