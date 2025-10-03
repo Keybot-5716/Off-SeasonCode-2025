@@ -12,6 +12,9 @@ import frc.robot.subsystems.SuperstructureConstants.AlgaeLevel;
 import frc.robot.subsystems.SuperstructureConstants.BranchType;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
+import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.arm.ArmSubsystem;
+import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -22,6 +25,8 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem swerveSub;
   private final ElevatorSubsystem elevatorSub;
+  private final ArmSubsystem armSub;
+  private final RollerSubsystem rollersSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -37,10 +42,10 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_L2,
     SCORE_RIGHT_L3,
     SCORE_RIGHT_L4,
-    SCORE_L1,
-    SCORE_L2,
-    SCORE_L3,
-    SCORE_L4,
+    PREP_L1,
+    PREP_L2,
+    PREP_L3,
+    PREP_L4,
     RESET,
     OUTTAKE_CORAL,
     TO_FEEDER,
@@ -77,14 +82,14 @@ public class Superstructure extends SubsystemBase {
     SCORE_RIGHT_AUTO_L2,
     SCORE_RIGHT_AUTO_L3,
     SCORE_RIGHT_AUTO_L4,
-    SCORE_L1,
-    SCORE_L2,
-    SCORE_L3,
-    SCORE_L4,
-    SCORE_AUTO_L1,
-    SCORE_AUTO_L2,
-    SCORE_AUTO_L3,
-    SCORE_AUTO_L4,
+    PREP_L1,
+    PREP_L2,
+    PREP_L3,
+    PREP_L4,
+    PREP_AUTO_L1,
+    PREP_AUTO_L2,
+    PREP_AUTO_L3,
+    PREP_AUTO_L4,
     RESET,
     OUTTAKE_CORAL,
     OUTTAKE_AUTO_CORAL,
@@ -128,9 +133,15 @@ public class Superstructure extends SubsystemBase {
   // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
-  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub) {
+  public Superstructure(
+      SwerveSubsystem swerveSub, 
+      ElevatorSubsystem elevatorSub,
+      ArmSubsystem armSub,
+      RollerSubsystem rollersSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
+    this.armSub = armSub;
+    this.rollersSub = rollersSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
@@ -210,17 +221,17 @@ public class Superstructure extends SubsystemBase {
         currentState =
             isAutonomous ? CurrentState.SCORE_RIGHT_AUTO_L4 : CurrentState.SCORE_RIGHT_TELEOP_L4;
         break;
-      case SCORE_L1:
-        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L1 : CurrentState.SCORE_L1;
+      case PREP_L1:
+        currentState = isAutonomous ? CurrentState.PREP_AUTO_L1 : CurrentState.PREP_L1;
         break;
-      case SCORE_L2:
-        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L2 : CurrentState.SCORE_L2;
+      case PREP_L2:
+        currentState = isAutonomous ? CurrentState.PREP_AUTO_L2 : CurrentState.PREP_L2;
         break;
-      case SCORE_L3:
-        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L3 : CurrentState.SCORE_L3;
+      case PREP_L3:
+        currentState = isAutonomous ? CurrentState.PREP_AUTO_L3 : CurrentState.PREP_L3;
         break;
-      case SCORE_L4:
-        currentState = isAutonomous ? CurrentState.SCORE_AUTO_L4 : CurrentState.SCORE_L4;
+      case PREP_L4:
+        currentState = isAutonomous ? CurrentState.PREP_AUTO_L4 : CurrentState.PREP_L4;
         break;
       case RESET:
         currentState = CurrentState.RESET;
@@ -330,25 +341,25 @@ public class Superstructure extends SubsystemBase {
       case SCORE_RIGHT_TELEOP_L4:
         autoAllignL4(BranchType.RIGHT);
         break;
-      case SCORE_L1:
+      case PREP_L1:
         goToL1();
         break;
-      case SCORE_L2:
+      case PREP_L2:
         goToL2();
         break;
-      case SCORE_L3:
+      case PREP_L3:
         goToL3();
         break;
-      case SCORE_L4:
+      case PREP_L4:
         goToL4();
         break;
-      case SCORE_AUTO_L1:
+      case PREP_AUTO_L1:
         break;
-      case SCORE_AUTO_L2:
+      case PREP_AUTO_L2:
         break;
-      case SCORE_AUTO_L3:
+      case PREP_AUTO_L3:
         break;
-      case SCORE_AUTO_L4:
+      case PREP_AUTO_L4:
         break;
       case RESET:
         break;
@@ -402,13 +413,15 @@ public class Superstructure extends SubsystemBase {
   private void stopped() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED);
-    // intakeSub.setDesiredState(IntakeSubsys.DesiredState.STOPPED);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.STOPPED);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
   }
 
   private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
-    // intakeSub.setDesiredState(IntakeSubsys.DesiredState.HOME);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.HOME);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
   }
 
   // ==== Base Autonomous States
@@ -444,18 +457,22 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL1() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L1);
   }
 
   private void goToL2() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L2);
   }
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
   }
 
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
   }
 
   private void score(ReefLevel level) {
@@ -579,12 +596,10 @@ public class Superstructure extends SubsystemBase {
     Pose2d currentPose = swerveSub.getPose();
     Pose2d desiredReef = currentPose.nearest(reef);
     int closestIndex = reef.indexOf(desiredReef);
-    /*
+
     if(closestIndex > 3 && closestIndex < 10) {
     leftRequest = !leftRequest;
     }
-
-    */
 
     if (leftRequest && (closestIndex % 2 == 1)) {
       desiredReef = reef.get(closestIndex - 1);
@@ -639,7 +654,7 @@ public class Superstructure extends SubsystemBase {
   public Command scoreCommand(BranchType type) {
     return Commands.sequence(
         superstructureCommand(DesiredState.SCORE_LEFT_L1),
-        superstructureCommand(DesiredState.SCORE_L1),
+        superstructureCommand(DesiredState.PREP_L1),
         Commands.waitUntil(() -> elevatorSub.isAtDesiredPos()));
   }
 

@@ -1,20 +1,17 @@
 package frc.robot.subsystems.arm.Rollers;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Superstructure.DesiredState;
+import org.littletonrobotics.junction.Logger;
 
 public class RollerSubsystem extends SubsystemBase {
   private final RollerIO io;
   private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
-  private Angle desiredSpeedRollers;
+  private double desiredSpeedRollers;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.DEFAULT;
-  private DesiredState lastdesiredState = DesiredState.DEFAULT;
   private SubsystemState subsystemState = SubsystemState.DEFAULT;
 
   public enum DesiredState {
@@ -33,20 +30,27 @@ public class RollerSubsystem extends SubsystemBase {
     this.io = io;
   }
 
-  /*
-   * (Se debe poner esto?)
-   * @Override
-  public void periodic(){
+  @Override
+  public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Rollers", inputs);
+
+    Logger.recordOutput("Rollers/Current Spped", desiredSpeedRollers);
+    Logger.recordOutput("Rollers/Current State", subsystemState);
+    Logger.recordOutput("Rollers/Desired State", desiredState);
+
+    subsystemState = transitions();
+    applyStates();
   }
-  */
 
   public void setRollerSpeed(double speed) {
     MathUtil.clamp(speed, 0, 1);
     io.setRollerSpeed(speed);
-    // dudas
-    desiredSpeedRollers = Units.Rotations.of(speed);
+    desiredSpeedRollers = speed;
+  }
+
+  public void stop() {
+    io.stopRoller();
   }
 
   public SubsystemState transitions() {
@@ -61,7 +65,7 @@ public class RollerSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case DEFAULT:
-        io.stopRoller();
+        stop();
         break;
       case FORWARDING:
         setRollerSpeed(desiredOutput);
@@ -78,6 +82,6 @@ public class RollerSubsystem extends SubsystemBase {
 
   public void setDesiredState(DesiredState desiredState, double speedRollers) {
     this.desiredState = desiredState;
-    this.desiredSpeedRollers = desiredSpeedRollers;
+    this.desiredSpeedRollers = speedRollers;
   }
 }

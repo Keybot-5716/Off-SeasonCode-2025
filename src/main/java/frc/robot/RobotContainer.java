@@ -27,8 +27,12 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
 import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
+import frc.robot.subsystems.arm.ArmIO;
+import frc.robot.subsystems.arm.ArmIOTalonFX;
+import frc.robot.subsystems.arm.ArmSubsystem;
 import frc.robot.subsystems.arm.Rollers.RollerIO;
 import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
+import frc.robot.subsystems.arm.Rollers.RollerTalonFX;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -51,6 +55,7 @@ public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem drive;
   private final ElevatorSubsystem elevator;
+  private final ArmSubsystem arm;
   private final RollerSubsystem rollers;
   private final Superstructure superstructure;
 
@@ -75,9 +80,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
-        superstructure = new Superstructure(drive, elevator);
-        rollers = new RollerSubsystem(new RollerIO() {});
-
+        arm = new ArmSubsystem(new ArmIOTalonFX());
+        rollers = new RollerSubsystem(new RollerTalonFX());
+        superstructure = new Superstructure(drive, elevator, arm, rollers);
+        
         break;
 
       case SIM:
@@ -90,9 +96,11 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 driver_controller);
-        elevator = new ElevatorSubsystem(new ElevatorIOSim());
-        superstructure = new Superstructure(drive, elevator);
+        elevator = new ElevatorSubsystem(new ElevatorIO(){});
+        arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
+        superstructure = new Superstructure(drive, elevator, arm, rollers);
+
         break;
 
       default:
@@ -105,9 +113,10 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driver_controller);
-        elevator = new ElevatorSubsystem(new ElevatorIO() {});
-        superstructure = new Superstructure(drive, elevator);
+        elevator = new ElevatorSubsystem(new ElevatorIO(){});
+        arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
+        superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
     }
@@ -183,6 +192,65 @@ public class RobotContainer {
 
   private void configureOperatorBindings(CommandXboxController controller) {
     controller
+        .a()
+        .whileTrue(
+            Commands.run(
+                () ->
+                    elevator.setDesiredStateWithOutput(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+    controller
+        .b()
+        .whileTrue(
+            Commands.run(
+                () ->
+                    elevator.setDesiredStateWithOutput(
+                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+    controller
+        .x()
+        .whileTrue(
+            Commands.run(
+                () ->
+                    arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
+    controller
+        .y()
+        .whileTrue(
+            Commands.run(
+                () ->
+                    elevator.setDesiredStateWithOutput(
+                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
+    controller 
+        .rightTrigger()
+        .whileTrue(
+            Commands.run(
+                ()->
+                    rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+    controller 
+        .leftTrigger()
+        .whileTrue(
+            Commands.run(
+                ()->
+                    rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.1)))
+        .onFalse(
+            Commands.runOnce(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+  }
+  /*
+  private void configureOperatorBindings(CommandXboxController controller) {
+    controller
         .leftBumper()
         .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
     controller
@@ -192,7 +260,7 @@ public class RobotContainer {
     controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
     controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
     controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
-  }
+  } */
 
   public Command getAutonomousCommand() {
     return autoChooser.get();

@@ -2,7 +2,9 @@ package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -72,7 +74,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void runOpenLoop(double output) {
-    motor.setControl(motionMagicEVRequest.withFeedForward(output));
+    motor.setControl(new DutyCycleOut(output));
   }
 
   @Override
@@ -82,7 +84,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void setPosition(double position) {
-    motor.setControl(motionMagicEVRequest.withPosition(position));
+    motor.setControl(new PositionVoltage(position));
   }
 
   @Override
