@@ -44,8 +44,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotionMagic.MotionMagicJerk = 1600;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-    config.Slot0.kP = 3;
-    config.Slot0.kG = 0.5;
+    config.Slot0.kP = 22.5;
+    config.Slot0.kG = 0.85;
     config.Slot0.kS = 0.3;
 
     motor.getConfigurator().apply(config);

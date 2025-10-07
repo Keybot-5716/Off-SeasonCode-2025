@@ -89,6 +89,10 @@ public class ArmSubsystem extends SubsystemBase {
     io.setPosition(0);
   }
 
+  public boolean isPositioned(double position, double offset) {
+    return MathUtil.isNear(position, getArmPosInRotations(), offset);
+  }
+
   public boolean isPositionedRotations(double position, double offset) {
     return MathUtil.isNear(position, getArmPosInRotations(), offset);
   }

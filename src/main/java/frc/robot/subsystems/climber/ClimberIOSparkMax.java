@@ -1,3 +1,4 @@
+/*
 package frc.robot.subsystems.climber;
 
 import static frc.robot.subsystems.climber.ClimberConstants.CLIMBERSPARKMAXID;
@@ -49,3 +50,5 @@ public class ClimberIOSparkMax implements ClimberIO {
     pidController.setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 }
+
+*/

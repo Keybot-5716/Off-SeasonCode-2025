@@ -212,7 +212,7 @@ public class RobotContainer {
         .x()
         .whileTrue(
             Commands.run(
-                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.1)))
+                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.3)))
         .onFalse(Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
     controller
         .y()
@@ -223,37 +223,28 @@ public class RobotContainer {
     controller
         .rightBumper()
         .whileTrue(
-            Commands.run(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.3)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.5)))
         .onFalse(
-            Commands.runOnce(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
     controller
         .leftBumper()
         .whileTrue(
-            Commands.run(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
-<<<<<<< Updated upstream
-            Commands.runOnce(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller
-        .povUp()
-        .whileTrue(
-            Commands.run(
-                () ->
-                    elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3)));
-=======
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller.povUp().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
+    controller.povUp().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
+    controller.povDown().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
+    controller.povRight().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
+    controller.povLeft().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
 
-    controller.povUpRight().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
->>>>>>> Stashed changes
+    controller
+        .leftTrigger()
+        .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
+        .onFalse(
+            superstructure
+                .superstructureCommand(DesiredState.TAKE_CORAL)
+                .withTimeout(1.0)
+                .andThen(superstructure.superstructureCommand(DesiredState.STOPPED)));
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

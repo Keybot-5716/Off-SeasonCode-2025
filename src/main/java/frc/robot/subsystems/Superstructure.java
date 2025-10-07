@@ -14,6 +14,7 @@ import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmSubsystem;
+import frc.robot.subsystems.arm.Rollers.RollerConstants;
 import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
@@ -376,6 +377,7 @@ public class Superstructure extends SubsystemBase {
         intakeCoral();
         break;
       case TAKE_CORAL:
+        takeCoral();
         break;
       case INTAKE_ALGAE:
         intakeAlgae();
@@ -467,14 +469,16 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
-    if (elevatorSub.isAtDesiredPos()) {
+    if (elevatorSub.isPositioned(ElevatorConstants.L3, 0.1)) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
     }
   }
 
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
-    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
+    if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.03)) {
+      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
+    }
   }
 
   private void score(ReefLevel level) {
@@ -511,13 +515,21 @@ public class Superstructure extends SubsystemBase {
   // -- Coral States
 
   private void intakeCoral() {
-    //   intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
-    /*
-     * Aquí necesito entender bien la lógica de cuándo se activa el intake
-     * y saber cuando se desactiva
-     * O como funciona esa secuencia, o si en su defecto el driver la activa y desactiva
-     * por lo mientras esto queda como sketch
-     */
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.INTAKE_CORAL);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.NONE);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+  }
+
+  private void takeCoral() {
+    if (armSub.isPositioned(ArmConstants.NONE, 0.5)) {
+      elevatorSub.setDesiredState(
+          ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.TAKE_CORAL);
+      if (elevatorSub.isPositioned(ElevatorConstants.TAKE_CORAL, 0.5)) {
+        rollersSub.setDesiredState(
+            RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
+      }
+    }
   }
 
   private void overrideIntakeCoral() {}
@@ -661,5 +673,4 @@ public class Superstructure extends SubsystemBase {
   }
 
   // Sketch Intake Command
-
 }

@@ -42,7 +42,7 @@ public class ArmIOTalonFX implements ArmIO {
     config.MotionMagic.MotionMagicJerk = 1600;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    config.Slot0.kP = 3;
+    config.Slot0.kP = 2;
     config.Slot0.kD = 0.1;
     config.Slot0.kG = 0.2;
     config.Slot0.kS = 0.3;
