@@ -49,6 +49,7 @@ public class Superstructure extends SubsystemBase {
     PREP_L4,
     RESET,
     OUTTAKE_CORAL,
+    RETRIEVE_SCORE,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
@@ -93,6 +94,7 @@ public class Superstructure extends SubsystemBase {
     PREP_AUTO_L4,
     RESET,
     OUTTAKE_CORAL,
+    RETRIEVE_SCORE,
     OUTTAKE_AUTO_CORAL,
     TO_FEEDER,
     INTAKE_CORAL,
@@ -239,6 +241,10 @@ public class Superstructure extends SubsystemBase {
         break;
       case OUTTAKE_CORAL:
         currentState = isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
+        break;
+      case RETRIEVE_SCORE:
+        currentState = CurrentState.RETRIEVE_SCORE;
+        break;
       case TO_FEEDER:
         currentState = CurrentState.TO_FEEDER;
         break;
@@ -367,6 +373,8 @@ public class Superstructure extends SubsystemBase {
       case OUTTAKE_CORAL:
         score(desiredReefLevel);
         break;
+      case RETRIEVE_SCORE:
+        retrieve();
       case OUTTAKE_AUTO_CORAL:
         scoreAuto(desiredReefLevel);
         break;
@@ -486,13 +494,27 @@ public class Superstructure extends SubsystemBase {
       case L1:
         break;
       case L2:
+        armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L2);
+        elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+
         break;
       case L3:
+        armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L3);
+        elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+
         break;
       case L4:
+        armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L4);
+        elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+
         break;
     }
   }
+
+  private void retrieve() {}
 
   private void scoreAuto(ReefLevel level) {
     switch (level) {
@@ -522,14 +544,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void takeCoral() {
-    if (armSub.isPositioned(ArmConstants.NONE, 0.5)) {
-      elevatorSub.setDesiredState(
-          ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.TAKE_CORAL);
-      if (elevatorSub.isPositioned(ElevatorConstants.TAKE_CORAL, 0.5)) {
-        rollersSub.setDesiredState(
-            RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
-      }
-    }
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
   }
 
   private void overrideIntakeCoral() {}

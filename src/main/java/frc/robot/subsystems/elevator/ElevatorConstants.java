@@ -18,7 +18,7 @@ public class ElevatorConstants {
   public static final double L2 = 0.12;
   public static final double L3 = 1.5;
   public static final double L4 = 3.25;
-  public static final double INTAKE_CORAL = 1.0;
+  public static final double INTAKE_CORAL = 0.7;
   public static final double TAKE_CORAL = 0.1;
 
   // ALGAE

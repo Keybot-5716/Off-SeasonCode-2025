@@ -184,8 +184,50 @@ public class RobotContainer {
         .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
 
     controller
-        .a()
+        .start()
         .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
+
+    controller
+        .x()
+        .onTrue(
+            superstructure
+                .superstructureCommand(DesiredState.PREP_L3)
+                .alongWith(
+                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L3))));
+    controller.a().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
+
+    controller
+        .y()
+        .onTrue(
+            superstructure
+                .superstructureCommand(DesiredState.PREP_L4)
+                .alongWith(
+                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L4))));
+    controller
+        .rightTrigger()
+        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
+    controller
+        .b()
+        .onTrue(
+            superstructure
+                .superstructureCommand(DesiredState.PREP_L2)
+                .alongWith(
+                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L2))));
+    controller
+        .leftTrigger()
+        .onTrue(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.INTAKE_CORAL)))
+        .onFalse(
+            Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.STOPPED))
+                .andThen(
+                    Commands.waitSeconds(1.0)
+                        .andThen(
+                            Commands.runOnce(
+                                    () -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))
+                                .andThen(Commands.waitSeconds(0.5))
+                                .andThen(
+                                    Commands.runOnce(
+                                        () ->
+                                            superstructure.setDesiredState(DesiredState.HOME))))));
   }
 
   private void configureOperatorBindings(CommandXboxController controller) {
@@ -232,19 +274,6 @@ public class RobotContainer {
             Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller.povUp().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
-    controller.povDown().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
-    controller.povRight().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
-    controller.povLeft().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
-
-    controller
-        .leftTrigger()
-        .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
-        .onFalse(
-            superstructure
-                .superstructureCommand(DesiredState.TAKE_CORAL)
-                .withTimeout(1.0)
-                .andThen(superstructure.superstructureCommand(DesiredState.STOPPED)));
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {
