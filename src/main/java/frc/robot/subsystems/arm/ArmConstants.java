@@ -13,5 +13,5 @@ public class ArmConstants {
 
   public static final double SCORE_L2 = 55.0;
   public static final double SCORE_L3 = 55.0;
-  public static final double SCORE_L4 = 76.0;
+  public static final double SCORE_L4 = 67.0;
 }

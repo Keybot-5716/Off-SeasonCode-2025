@@ -144,6 +144,7 @@ public class RobotContainer {
   }
 
   private void configureDriver(CommandXboxController controller) {
+    /*
     controller
         .leftTrigger()
         .onTrue(
@@ -177,7 +178,7 @@ public class RobotContainer {
                         () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
                     () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
                 () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
-        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT)); */
     controller
         .leftBumper()
         .onTrue(superstructure.superstructureCommand(DesiredState.TO_FEEDER))
@@ -219,7 +220,7 @@ public class RobotContainer {
         .onFalse(
             Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.STOPPED))
                 .andThen(
-                    Commands.waitSeconds(1.0)
+                    Commands.waitSeconds(1.5)
                         .andThen(
                             Commands.runOnce(
                                     () -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))

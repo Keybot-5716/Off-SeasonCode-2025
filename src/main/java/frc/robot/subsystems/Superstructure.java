@@ -430,8 +430,10 @@ public class Superstructure extends SubsystemBase {
   private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
-    armSub.setDesiredState(ArmSubsystem.DesiredState.HOME);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    if (elevatorSub.getElevatorPosInRotations() <= 1.1) {
+      armSub.setDesiredState(ArmSubsystem.DesiredState.HOME);
+    }
   }
 
   // ==== Base Autonomous States
@@ -477,14 +479,14 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
-    if (elevatorSub.isPositioned(ElevatorConstants.L3, 0.1)) {
+    if (elevatorSub.isPositioned(ElevatorConstants.L3, 0.9)) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
     }
   }
 
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
-    if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.03)) {
+    if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.9)) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
     }
   }
@@ -496,19 +498,22 @@ public class Superstructure extends SubsystemBase {
       case L2:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L2);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
-        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
 
         break;
       case L3:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L3);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
-        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
 
         break;
       case L4:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L4);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
-        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3);
+
+        if (armSub.isPositioned(ArmConstants.SCORE_L4, 5)) {
+          rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.15);
+        }
 
         break;
     }
@@ -648,6 +653,24 @@ public class Superstructure extends SubsystemBase {
     desiredFeeder = feeder.get(closestIndex);
 
     return desiredFeeder;
+  }
+
+  public Command stateCommand(){
+    return null;
+  }
+
+  public Command setRobotStateCmd() {
+    Command cmd = null;
+    if(robotMode == RobotMode.CORAL) {
+      cmd = Commands.runOnce(()->setDesiredRobotMode(RobotMode.ALGAE));
+    } else if (robotMode == RobotMode.ALGAE) {
+      cmd = Commands.runOnce(()->setDesiredRobotMode(RobotMode.ALGAE));
+    }
+    return cmd;
+  }
+
+  public Command superstructureConditional() {
+    return Commands.either(null, null, null);
   }
 
   // -- OPERATOR COMMANDS
