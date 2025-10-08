@@ -6,19 +6,18 @@ public interface ClimberIO {
 
   @AutoLog
   public static class ClimberIOInputs {
-    ClimberIOData data = new ClimberIOData(false, 0.0, 0.0, 0.0, 0.0);
+    ClimberIOData data = new ClimberIOData(false, 0, 0, 0, 0, 0);
   }
 
   record ClimberIOData(
       boolean motorConnected,
-      double velocityRPS,
-      double ClimberappliedVoltage,
-      double ClimbercurrentAmps,
-      double ClimbertemperatureCelsius) {}
+      double positionRotations,
+      double velocityRotationsPerSec,
+      double appliedVolts,
+      double supplyCurrentAmps,
+      double tempCelsius) {}
 
   public default void updateInputs(ClimberIOInputs inputs) {}
-
-  public default void setClimberSpeed(double speed) {}
 
   public default void stopClimber() {}
 

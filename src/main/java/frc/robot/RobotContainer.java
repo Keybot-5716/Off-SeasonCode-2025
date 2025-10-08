@@ -223,37 +223,16 @@ public class RobotContainer {
     controller
         .rightBumper()
         .whileTrue(
-            Commands.run(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.3)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.3)))
         .onFalse(
-            Commands.runOnce(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
     controller
         .leftBumper()
         .whileTrue(
-            Commands.run(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
-<<<<<<< Updated upstream
-            Commands.runOnce(
-              () -> 
-                rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller
-        .povUp()
-        .whileTrue(
-            Commands.run(
-                () ->
-                    elevator.setDesiredState(
-                        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3)));
-=======
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
     controller.povUp().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
-
-    controller.povUpRight().whileTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
->>>>>>> Stashed changes
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {
