@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -20,8 +19,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final Alert motorDisconnected =
       new Alert("Arm Motor Disconnected! D:", AlertType.kWarning);
 
-  private Angle lastDesiredAngle = Units.Rotations.of(0);
-  private double desiredArmPosition;
+  private double lastDesiredAngle = 0;
+  private double desiredElevatorPosition;
   private double desiredOutput;
 
   private DesiredState desiredState = DesiredState.STOPPED;
@@ -55,16 +54,19 @@ public class ArmSubsystem extends SubsystemBase {
         !motorConnectedDebouncer.calculate(inputs.data.motorConnected() && !Robot.isJITing()));
 
     Logger.recordOutput("Arm/Current Position", getArmPosInRotations());
-    Logger.recordOutput("Arm/Desired Position", lastDesiredAngle.in(Units.Rotations));
+    Logger.recordOutput("Arm/Desired Position", lastDesiredAngle);
     Logger.recordOutput("Arm/IsAtDesiredPosition", isAtDesiredPos());
     Logger.recordOutput("Arm/IndividualState", lastDesiredState);
+    Logger.recordOutput("Arm/CurrentState", subsystemState);
 
     lastDesiredState = this.desiredState;
+    subsystemState = setStateTransitions();
+    applyStates();
   }
 
   public void setPosition(double position) {
     io.setPosition(position);
-    lastDesiredAngle = Units.Rotations.of(position);
+    lastDesiredAngle = position;
   }
 
   public void runOpenLoop(double output) {
@@ -75,11 +77,11 @@ public class ArmSubsystem extends SubsystemBase {
     io.setVoltage(voltage.in(Units.Volts));
   }
 
-  public Angle getArmPosInRotations() {
-    return Units.Rotations.of(inputs.data.positionRotations());
+  public double getArmPosInRotations() {
+    return inputs.data.positionRotations();
   }
 
-  public Angle getLastDesiredArmPosInRotations() {
+  public double getLastDesiredArmPosInRotations() {
     return lastDesiredAngle;
   }
 
@@ -87,16 +89,16 @@ public class ArmSubsystem extends SubsystemBase {
     io.setPosition(0);
   }
 
-  public boolean isPositionedRotations(Angle position, Angle offset) {
-    return MathUtil.isNear(
-        position.in(Units.Rotations),
-        getArmPosInRotations().in(Units.Rotations),
-        offset.in(Units.Rotations));
+  public boolean isPositionedRotations(double position, double offset) {
+    return MathUtil.isNear(position, getArmPosInRotations(), offset);
   }
 
   public boolean isAtDesiredPos() {
-    return isPositionedRotations(
-        getLastDesiredArmPosInRotations(), Units.Rotations.of(ArmConstants.MIN_OFFSET));
+    return isPositionedRotations(getLastDesiredArmPosInRotations(), ArmConstants.MIN_OFFSET);
+  }
+
+  public void stop() {
+    io.stop();
   }
 
   public SubsystemState setStateTransitions() {
@@ -112,16 +114,16 @@ public class ArmSubsystem extends SubsystemBase {
   public void applyStates() {
     switch (subsystemState) {
       case HOMING:
-        io.stop();
+        stop();
         break;
       case STOPPING:
-        io.stop();
+        stop();
         break;
       case PREPARING_LVL:
-        io.setPosition(desiredArmPosition);
+        setPosition(desiredElevatorPosition);
         break;
       case MANUAL:
-        io.runOpenLoop(desiredOutput);
+        runOpenLoop(desiredOutput);
         break;
     }
   }
@@ -130,9 +132,9 @@ public class ArmSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
   }
 
-  public void setDesiredState(DesiredState desiredState, double desiredArmPosition) {
+  public void setDesiredState(DesiredState desiredState, double desiredElevatorPosition) {
     this.desiredState = desiredState;
-    this.desiredArmPosition = desiredArmPosition;
+    this.desiredElevatorPosition = desiredElevatorPosition;
   }
 
   public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {

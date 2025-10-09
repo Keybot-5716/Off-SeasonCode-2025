@@ -15,7 +15,6 @@ import frc.robot.subsystems.SuperstructureConstants.RobotMode;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsys;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,7 +22,6 @@ public class Superstructure extends SubsystemBase {
 
   private final SwerveSubsystem swerveSub;
   private final ElevatorSubsystem elevatorSub;
-  private final IntakeSubsys intakeSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -130,11 +128,9 @@ public class Superstructure extends SubsystemBase {
   // CORAL INTAKE OVERRIDE
   boolean isIntakeOverride = false;
 
-  public Superstructure(
-      SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub, IntakeSubsys intakeSub) {
+  public Superstructure(SwerveSubsystem swerveSub, ElevatorSubsystem elevatorSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
-    this.intakeSub = intakeSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
@@ -497,7 +493,6 @@ public class Superstructure extends SubsystemBase {
 
   private void intakeCoral() {
     //   intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
-    intakeSub.setDesiredState(IntakeSubsys.DesiredState.DEPLOYED);
     /*
      * Aquí necesito entender bien la lógica de cuándo se activa el intake
      * y saber cuando se desactiva
