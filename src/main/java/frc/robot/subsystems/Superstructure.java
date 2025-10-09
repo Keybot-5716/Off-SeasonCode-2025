@@ -33,7 +33,8 @@ public class Superstructure extends SubsystemBase {
 
   public enum DesiredState {
     STOPPED,
-    HOME,
+    HOME_CORAL,
+    HOME_ALGAE,
     DEFAULT,
     SCORE_LEFT_L1,
     SCORE_LEFT_L2,
@@ -49,10 +50,12 @@ public class Superstructure extends SubsystemBase {
     PREP_L4,
     RESET,
     OUTTAKE_CORAL,
+    OUTTAKE_ALGAE,
     RETRIEVE_SCORE,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
+    TAKE_ALGAE,
     INTAKE_ALGAE,
     ALGAE_LOW_INTAKE,
     ALGAE_HIGH_INTAKE,
@@ -67,7 +70,8 @@ public class Superstructure extends SubsystemBase {
 
   public enum CurrentState {
     STOPPED,
-    HOME,
+    HOME_CORAL,
+    HOME_ALGAE,
     SCORE_LEFT_TELEOP_L1,
     SCORE_LEFT_TELEOP_L2,
     SCORE_LEFT_TELEOP_L3,
@@ -94,11 +98,13 @@ public class Superstructure extends SubsystemBase {
     PREP_AUTO_L4,
     RESET,
     OUTTAKE_CORAL,
+    OUTTAKE_ALGAE,
     RETRIEVE_SCORE,
     OUTTAKE_AUTO_CORAL,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
+    TAKE_ALGAE,
     INTAKE_ALGAE,
     ALGAE_LOW_INTAKE,
     ALGAE_HIGH_INTAKE,
@@ -186,9 +192,11 @@ public class Superstructure extends SubsystemBase {
       default:
         currentState = CurrentState.STOPPED;
         break;
-      case HOME:
-        currentState = CurrentState.HOME;
+      case HOME_ALGAE:
+        currentState = CurrentState.HOME_ALGAE;
         break;
+      case HOME_CORAL:
+        currentState = CurrentState.HOME_CORAL;
       case DEFAULT:
         currentState = CurrentState.STOPPED;
         break;
@@ -242,6 +250,8 @@ public class Superstructure extends SubsystemBase {
       case OUTTAKE_CORAL:
         currentState = isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
         break;
+      case OUTTAKE_ALGAE:
+        currentState = CurrentState.OUTTAKE_ALGAE;
       case RETRIEVE_SCORE:
         currentState = CurrentState.RETRIEVE_SCORE;
         break;
@@ -254,6 +264,8 @@ public class Superstructure extends SubsystemBase {
       case TAKE_CORAL:
         currentState = CurrentState.TAKE_CORAL;
         break;
+      case TAKE_ALGAE:
+        currentState = CurrentState.TAKE_ALGAE;
       case INTAKE_ALGAE:
         currentState = CurrentState.INTAKE_ALGAE;
         break;
@@ -295,8 +307,8 @@ public class Superstructure extends SubsystemBase {
       case STOPPED:
         stopped();
         break;
-      case HOME:
-        home();
+      case HOME_ALGAE:
+        HOME_ALGAE();
         break;
         // ---- Autonomous Score Cases
       case SCORE_LEFT_AUTO_L1:
@@ -427,7 +439,7 @@ public class Superstructure extends SubsystemBase {
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
   }
 
-  private void home() {
+  private void HOME_ALGAE() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
@@ -655,9 +667,19 @@ public class Superstructure extends SubsystemBase {
     return desiredFeeder;
   }
 
-  public Command stateCommand(){
-    return null;
+  public Command stateCommand(DesiredState State){
+    return stateCommand(State, false);
   }
+
+  // Nuevo comando por si el climber está desplegado
+  public Command stateCommand(DesiredState State, boolean isClimbing){
+    Command ComReturn = new InstantCommand(()-> setDesiredState(desiredState));
+    if (!isClimbing){
+      return ComReturn.onlyIf(() -> currentState != CurrentState.CLIMB);
+    }
+    return ComReturn;
+  }
+
 
   public Command setRobotStateCmd() {
     Command cmd = null;
@@ -671,6 +693,12 @@ public class Superstructure extends SubsystemBase {
 
   public Command superstructureConditional() {
     return Commands.either(null, null, null);
+  }
+
+  public Command changeButtons(DesiredState coral, DesiredState algae){
+    return Commands.either(
+        stateCommand(algae),
+    stateCommand(coral), () -> getCurrentRobotMode() == RobotMode.ALGAE);
   }
 
   // -- OPERATOR COMMANDS

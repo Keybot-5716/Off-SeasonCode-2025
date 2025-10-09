@@ -195,18 +195,18 @@ public class RobotContainer {
                 .superstructureCommand(DesiredState.PREP_L3)
                 .alongWith(
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L3))));
-    controller.a().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
+    controller.a().onTrue(superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE));
 
     controller
         .y()
         .onTrue(
             superstructure
-                .superstructureCommand(DesiredState.PREP_L4)
+                .changeButtons(DesiredState.PREP_L4, DesiredState.ALGAE_HIGH_INTAKE)
                 .alongWith(
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L4))));
     controller
         .rightTrigger()
-        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
+        .onTrue(superstructure.changeButtons(DesiredState.OUTTAKE_CORAL, DesiredState.OUTTAKE_ALGAE));
     controller
         .b()
         .onTrue(
@@ -216,19 +216,19 @@ public class RobotContainer {
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L2))));
     controller
         .leftTrigger()
-        .onTrue(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.INTAKE_CORAL)))
+        .onTrue(Commands.runOnce(() -> superstructure.changeButtons(DesiredState.INTAKE_CORAL, DesiredState.INTAKE_ALGAE)))
         .onFalse(
             Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.STOPPED))
                 .andThen(
                     Commands.waitSeconds(1.5)
                         .andThen(
                             Commands.runOnce(
-                                    () -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))
+                                    () -> superstructure.changeButtons(DesiredState.TAKE_CORAL, DesiredState.TAKE_ALGAE)))
                                 .andThen(Commands.waitSeconds(0.5))
                                 .andThen(
                                     Commands.runOnce(
                                         () ->
-                                            superstructure.setDesiredState(DesiredState.HOME))))));
+                                            superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE)))));
   }
 
   private void configureOperatorBindings(CommandXboxController controller) {
