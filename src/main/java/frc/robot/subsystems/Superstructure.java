@@ -671,7 +671,6 @@ public class Superstructure extends SubsystemBase {
     return stateCommand(State, false);
   }
 
-  // Nuevo comando por si el climber está desplegado
   public Command stateCommand(DesiredState State, boolean isClimbing){
     Command ComReturn = new InstantCommand(()-> setDesiredState(desiredState));
     if (!isClimbing){
@@ -680,12 +679,12 @@ public class Superstructure extends SubsystemBase {
     return ComReturn;
   }
 
-
   public Command setRobotStateCmd() {
     Command cmd = null;
     if (robotMode == RobotMode.CORAL) {
+      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.ALGAE));
     } else if (robotMode == RobotMode.ALGAE) {
-      cmd = Commands.runOnce(()->setDesiredRobotMode(RobotMode.ALGAE));
+      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.ALGAE));
     }
     return cmd;
   }
@@ -697,7 +696,8 @@ public class Superstructure extends SubsystemBase {
   public Command changeButtons(DesiredState coral, DesiredState algae){
     return Commands.either(
         stateCommand(algae),
-    stateCommand(coral), () -> getCurrentRobotMode() == RobotMode.ALGAE);
+        stateCommand(coral), 
+        () -> getCurrentRobotMode() == RobotMode.ALGAE);
   }
 
   // -- OPERATOR COMMANDS
