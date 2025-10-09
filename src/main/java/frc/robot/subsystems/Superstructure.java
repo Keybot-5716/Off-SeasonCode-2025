@@ -683,8 +683,7 @@ public class Superstructure extends SubsystemBase {
 
   public Command setRobotStateCmd() {
     Command cmd = null;
-    if(robotMode == RobotMode.CORAL) {
-      cmd = Commands.runOnce(()->setDesiredRobotMode(RobotMode.ALGAE));
+    if (robotMode == RobotMode.CORAL) {
     } else if (robotMode == RobotMode.ALGAE) {
       cmd = Commands.runOnce(()->setDesiredRobotMode(RobotMode.ALGAE));
     }

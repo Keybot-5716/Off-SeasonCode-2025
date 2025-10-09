@@ -4,20 +4,22 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ClimberIO {
 
-  // Contiene todo el input que recibe del hardware
   @AutoLog
   public static class ClimberIOInputs {
-    public double sparkAppliedVolts = 0.0;
-    public double sparkTemp = 0.0;
-    public double pidOutput = 0.0;
+    ClimberIOData data = new ClimberIOData(false, 0, 0, 0, 0, 0);
   }
 
-  // Updatea los inputs
+  record ClimberIOData(
+      boolean motorConnected,
+      double positionRotations,
+      double velocityRotationsPerSec,
+      double appliedVolts,
+      double supplyCurrentAmps,
+      double tempCelsius) {}
+
   public default void updateInputs(ClimberIOInputs inputs) {}
 
-  // Pone el voltaje
-  public default void setSparkMaxVoltage(double voltage) {}
+  public default void stopClimber() {}
 
-  // Pone la posición del motor
-  public default void setSparkPosition(double position) {}
+  public default void runOpenLoop(double output) {}
 }
