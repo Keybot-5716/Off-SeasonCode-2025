@@ -195,7 +195,9 @@ public class RobotContainer {
                 .superstructureCommand(DesiredState.PREP_L3)
                 .alongWith(
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L3))));
-    controller.a().onTrue(superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE));
+    controller
+        .a()
+        .onTrue(superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE));
 
     controller
         .y()
@@ -206,7 +208,8 @@ public class RobotContainer {
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L4))));
     controller
         .rightTrigger()
-        .onTrue(superstructure.changeButtons(DesiredState.OUTTAKE_CORAL, DesiredState.OUTTAKE_ALGAE));
+        .onTrue(
+            superstructure.changeButtons(DesiredState.OUTTAKE_CORAL, DesiredState.OUTTAKE_ALGAE));
     controller
         .b()
         .onTrue(
@@ -214,21 +217,35 @@ public class RobotContainer {
                 .superstructureCommand(DesiredState.PREP_L2)
                 .alongWith(
                     Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L2))));
+
+    controller.povUp().onTrue(
+        new InstantCommand(() -> superstructure.setRobotStateCmd().schedule())
+    );
+                    
+
+
     controller
         .leftTrigger()
-        .onTrue(Commands.runOnce(() -> superstructure.changeButtons(DesiredState.INTAKE_CORAL, DesiredState.INTAKE_ALGAE)))
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    superstructure.changeButtons(
+                        DesiredState.INTAKE_CORAL, DesiredState.INTAKE_ALGAE)))
         .onFalse(
             Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.STOPPED))
                 .andThen(
                     Commands.waitSeconds(1.5)
                         .andThen(
                             Commands.runOnce(
-                                    () -> superstructure.changeButtons(DesiredState.TAKE_CORAL, DesiredState.TAKE_ALGAE)))
-                                .andThen(Commands.waitSeconds(0.5))
-                                .andThen(
-                                    Commands.runOnce(
-                                        () ->
-                                            superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE)))));
+                                () ->
+                                    superstructure.changeButtons(
+                                        DesiredState.TAKE_CORAL, DesiredState.TAKE_ALGAE)))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(
+                            Commands.runOnce(
+                                () ->
+                                    superstructure.changeButtons(
+                                        DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE)))));
   }
 
   private void configureOperatorBindings(CommandXboxController controller) {
@@ -275,6 +292,9 @@ public class RobotContainer {
             Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
+    /*controller
+    .povUp()
+    .onTrue(superstructure.changeButtons(DesiredState., null));*/
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

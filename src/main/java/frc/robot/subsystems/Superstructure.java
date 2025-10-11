@@ -170,7 +170,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/CurrentState", currentState);
     Logger.recordOutput("Superstructure/LastCurrentState", lastCurrentState);
 
-    Logger.recordOutput("Superstructure/Current Mode", robotMode);
+    Logger.recordOutput("Superstructure/Desired Robot Mode", desiredRobotMode);
     // CORAL
     Logger.recordOutput("Superstructure/Coral/Current Reef Level", reefLevel);
     Logger.recordOutput("Superstructure/Coral/Current Branch", branchType);
@@ -667,16 +667,16 @@ public class Superstructure extends SubsystemBase {
     return desiredFeeder;
   }
 
-  public Command stateCommand(DesiredState State){
+  public Command stateCommand(DesiredState State) {
     return stateCommand(State, false);
   }
 
-  public Command stateCommand(DesiredState State, boolean isClimbing){
-    Command ComReturn = new InstantCommand(()-> setDesiredState(desiredState));
-    if (!isClimbing){
-      return ComReturn.onlyIf(() -> currentState != CurrentState.CLIMB);
+  public Command stateCommand(DesiredState State, boolean isClimbing) {
+    Command comReturn = new InstantCommand(() -> setDesiredState(State));
+    if (!isClimbing) {
+      return comReturn.onlyIf(() -> currentState != CurrentState.CLIMB);
     }
-    return ComReturn;
+    return comReturn;
   }
 
   public Command setRobotStateCmd() {
@@ -684,21 +684,27 @@ public class Superstructure extends SubsystemBase {
     if (robotMode == RobotMode.CORAL) {
       cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.ALGAE));
     } else if (robotMode == RobotMode.ALGAE) {
-      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.ALGAE));
+      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.CORAL));
     }
     return cmd;
   }
+
 
   public Command superstructureConditional() {
     return Commands.either(null, null, null);
   }
 
-  public Command changeButtons(DesiredState coral, DesiredState algae){
+  public Command changeButtons(DesiredState coral, DesiredState algae) {
     return Commands.either(
-        stateCommand(algae),
-        stateCommand(coral), 
-        () -> getCurrentRobotMode() == RobotMode.ALGAE);
+        stateCommand(coral), stateCommand(algae), () -> getCurrentRobotMode() == RobotMode.CORAL);
   }
+  /*
+  public Command changeState(RobotMode rMode){
+    return Commands.either(
+      setRobotStateCmd(), setRobotStateCmd(), () -> getCurrentRobotMode() == RobotMode.CORAL);
+
+  }
+  */
 
   // -- OPERATOR COMMANDS
   public Command setMode1OperatorSystem() {
