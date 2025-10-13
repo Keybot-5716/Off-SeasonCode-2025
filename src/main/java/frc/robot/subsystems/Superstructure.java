@@ -34,7 +34,7 @@ public class Superstructure extends SubsystemBase {
   public enum DesiredState {
     STOPPED,
     HOME_CORAL,
-    HOME_ALGAE,
+    HOME,
     DEFAULT,
     SCORE_LEFT_L1,
     SCORE_LEFT_L2,
@@ -71,7 +71,7 @@ public class Superstructure extends SubsystemBase {
   public enum CurrentState {
     STOPPED,
     HOME_CORAL,
-    HOME_ALGAE,
+    HOME,
     SCORE_LEFT_TELEOP_L1,
     SCORE_LEFT_TELEOP_L2,
     SCORE_LEFT_TELEOP_L3,
@@ -192,8 +192,8 @@ public class Superstructure extends SubsystemBase {
       default:
         currentState = CurrentState.STOPPED;
         break;
-      case HOME_ALGAE:
-        currentState = CurrentState.HOME_ALGAE;
+      case HOME:
+        currentState = CurrentState.HOME;
         break;
       case HOME_CORAL:
         currentState = CurrentState.HOME_CORAL;
@@ -307,8 +307,8 @@ public class Superstructure extends SubsystemBase {
       case STOPPED:
         stopped();
         break;
-      case HOME_ALGAE:
-        HOME_ALGAE();
+      case HOME:
+        home();
         break;
         // ---- Autonomous Score Cases
       case SCORE_LEFT_AUTO_L1:
@@ -394,7 +394,7 @@ public class Superstructure extends SubsystemBase {
         rotateToFeeder();
         break;
       case INTAKE_CORAL:
-        intakeCoral();
+        prepIntake();
         break;
       case TAKE_CORAL:
         takeCoral();
@@ -439,10 +439,11 @@ public class Superstructure extends SubsystemBase {
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
   }
 
-  private void HOME_ALGAE() {
+  private void home() {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    setDesiredReefLevel(ReefLevel.NONE);
     if (elevatorSub.getElevatorPosInRotations() <= 1.1) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.HOME);
     }
@@ -482,15 +483,18 @@ public class Superstructure extends SubsystemBase {
   private void goToL1() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L1);
+    setDesiredReefLevel(ReefLevel.L1);
   }
 
   private void goToL2() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L2);
+    setDesiredReefLevel(ReefLevel.L2);
   }
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
+    setDesiredReefLevel(ReefLevel.L3);
     if (elevatorSub.isPositioned(ElevatorConstants.L3, 0.9)) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
     }
@@ -498,6 +502,7 @@ public class Superstructure extends SubsystemBase {
 
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+    setDesiredReefLevel(ReefLevel.L4);
     if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.9)) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
     }
@@ -505,7 +510,10 @@ public class Superstructure extends SubsystemBase {
 
   private void score(ReefLevel level) {
     switch (level) {
+      case NONE:
+        break;
       case L1:
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
         break;
       case L2:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L2);
@@ -553,15 +561,20 @@ public class Superstructure extends SubsystemBase {
 
   // -- Coral States
 
-  private void intakeCoral() {
+  private void prepIntake() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.INTAKE_CORAL);
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.PREP_INTAKE);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.NONE);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
   }
 
   private void takeCoral() {
-    rollersSub.setDesiredState(RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.GO_TO_CORAL);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.NONE);
+    if (elevatorSub.isPositioned(ElevatorConstants.GO_TO_CORAL, 0.3)) {
+      rollersSub.setDesiredState(RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
+    }
   }
 
   private void overrideIntakeCoral() {}
@@ -668,6 +681,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Command stateCommand(DesiredState State) {
+  public Command stateCommand(DesiredState State) {
     return stateCommand(State, false);
   }
 
@@ -680,13 +694,14 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Command setRobotStateCmd() {
-    Command cmd = null;
-    if (robotMode == RobotMode.CORAL) {
-      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.ALGAE));
-    } else if (robotMode == RobotMode.ALGAE) {
-      cmd = Commands.runOnce(() -> setDesiredRobotMode(RobotMode.CORAL));
-    }
-    return cmd;
+    return Commands.runOnce(
+        () -> {
+          if (robotMode == RobotMode.CORAL) {
+            setDesiredRobotMode(RobotMode.ALGAE);
+          } else {
+            setDesiredRobotMode(RobotMode.CORAL);
+          }
+        });
   }
 
 
@@ -701,8 +716,7 @@ public class Superstructure extends SubsystemBase {
   /*
   public Command changeState(RobotMode rMode){
     return Commands.either(
-      setRobotStateCmd(), setRobotStateCmd(), () -> getCurrentRobotMode() == RobotMode.CORAL);
-
+        stateCommand(algae), stateCommand(coral), () -> getCurrentRobotMode() == RobotMode.ALGAE);
   }
   */
 
@@ -741,7 +755,6 @@ public class Superstructure extends SubsystemBase {
         superstructureCommand(DesiredState.SCORE_LEFT_L1),
         superstructureCommand(DesiredState.PREP_L1),
         Commands.waitUntil(() -> elevatorSub.isAtDesiredPos()));
+    // falta poner el retroceso del chasis -Jorge
   }
-
-  // Sketch Intake Command
 }

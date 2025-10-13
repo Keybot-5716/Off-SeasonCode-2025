@@ -25,13 +25,12 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
-import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.arm.ArmSubsystem;
 import frc.robot.subsystems.arm.Rollers.RollerIO;
+import frc.robot.subsystems.arm.Rollers.RollerIOSparkMax;
 import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
-import frc.robot.subsystems.arm.Rollers.RollerTalonFX;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -79,7 +78,8 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         arm = new ArmSubsystem(new ArmIOTalonFX());
-        rollers = new RollerSubsystem(new RollerTalonFX());
+        rollers = new RollerSubsystem(new RollerIO() {});
+
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -96,7 +96,7 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
-        rollers = new RollerSubsystem(new RollerIO() {});
+        rollers = new RollerSubsystem(new RollerIOSparkMax());
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -140,7 +140,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriver(driver_controller);
-    configureOperatorBindings(operator_controller);
+    // configureOperatorBindings(operator_controller);
   }
 
   private void configureDriver(CommandXboxController controller) {
@@ -179,7 +179,7 @@ public class RobotContainer {
                     () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
                 () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
         .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT)); */
-    controller
+        controller
         .leftBumper()
         .onTrue(superstructure.superstructureCommand(DesiredState.TO_FEEDER))
         .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
@@ -187,68 +187,27 @@ public class RobotContainer {
     controller
         .start()
         .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
-
-    controller
-        .x()
-        .onTrue(
-            superstructure
-                .superstructureCommand(DesiredState.PREP_L3)
-                .alongWith(
-                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L3))));
-    controller
-        .a()
-        .onTrue(superstructure.changeButtons(DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE));
-
-    controller
-        .y()
-        .onTrue(
-            superstructure
-                .changeButtons(DesiredState.PREP_L4, DesiredState.ALGAE_HIGH_INTAKE)
-                .alongWith(
-                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L4))));
+    controller.a().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
+    controller.back().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L1));
+    controller.b().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
+    controller.x().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
+    controller.y().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
     controller
         .rightTrigger()
-        .onTrue(
-            superstructure.changeButtons(DesiredState.OUTTAKE_CORAL, DesiredState.OUTTAKE_ALGAE));
-    controller
-        .b()
-        .onTrue(
-            superstructure
-                .superstructureCommand(DesiredState.PREP_L2)
-                .alongWith(
-                    Commands.runOnce(() -> superstructure.setDesiredReefLevel(ReefLevel.L2))));
-
-    controller.povUp().onTrue(
-        new InstantCommand(() -> superstructure.setRobotStateCmd().schedule())
-    );
-                    
-
-
+        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
     controller
         .leftTrigger()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    superstructure.changeButtons(
-                        DesiredState.INTAKE_CORAL, DesiredState.INTAKE_ALGAE)))
+        .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
         .onFalse(
-            Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.STOPPED))
+            Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))
+                .andThen(Commands.waitSeconds(1))
                 .andThen(
-                    Commands.waitSeconds(1.5)
-                        .andThen(
-                            Commands.runOnce(
-                                () ->
-                                    superstructure.changeButtons(
-                                        DesiredState.TAKE_CORAL, DesiredState.TAKE_ALGAE)))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(
-                            Commands.runOnce(
-                                () ->
-                                    superstructure.changeButtons(
-                                        DesiredState.HOME_CORAL, DesiredState.HOME_ALGAE)))));
+                    Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.HOME))));
+    controller.povUp().onTrue(superstructure.setRobotStateCmd());
   }
 
-  private void configureOperatorBindings(CommandXboxController controller) {
+  /*private void configureOperatorBindings(CommandXboxController controller) {
+
     controller
         .a()
         .whileTrue(
@@ -292,9 +251,6 @@ public class RobotContainer {
             Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    /*controller
-    .povUp()
-    .onTrue(superstructure.changeButtons(DesiredState., null));*/
   }
   /*
   private void configureOperatorBindings(CommandXboxController controller) {

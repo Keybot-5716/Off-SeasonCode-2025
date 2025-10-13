@@ -18,6 +18,7 @@ public class SuperstructureConstants {
   }
 
   public enum ReefLevel {
+    NONE,
     L1,
     L2,
     L3,
@@ -26,11 +27,13 @@ public class SuperstructureConstants {
 
   public enum AlgaeLevel {
     NET,
-    PROCESSOR
+    PROCESSOR,
+    NONE
   }
 
   public enum AlgaeIntake {
     LOW_ALGAE,
-    HIGH_ALGAE
+    HIGH_ALGAE,
+    NONE
   }
 }
