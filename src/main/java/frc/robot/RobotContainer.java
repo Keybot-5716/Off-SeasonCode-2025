@@ -251,19 +251,6 @@ public class RobotContainer {
             Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
         .onFalse(
             Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-  }
-  /*
-  private void configureOperatorBindings(CommandXboxController controller) {
-    controller
-        .leftBumper()
-        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.CORAL)));
-    controller
-        .rightBumper()
-        .onTrue(Commands.runOnce(() -> superstructure.setDesiredRobotMode(RobotMode.ALGAE)));
-    controller.povUp().onTrue(superstructure.setMode1OperatorSystem());
-    controller.povRight().onTrue(superstructure.setMode2OperatorSystem());
-    controller.povDown().onTrue(superstructure.setMode3OperatorSystem());
-    controller.povLeft().onTrue(superstructure.setMode4OperatorSystem());
   } */
 
   public Command getAutonomousCommand() {
