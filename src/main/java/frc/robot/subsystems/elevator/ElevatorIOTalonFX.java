@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -37,16 +38,24 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 30;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
+
+    config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 80;
-    config.MotionMagic.MotionMagicAcceleration = 160;
-    config.MotionMagic.MotionMagicJerk = 1600;
+    config.MotionMagic.MotionMagicCruiseVelocity = 0;
+    config.MotionMagic.MotionMagicAcceleration = 0;
+    config.MotionMagic.MotionMagicExpo_kA = 0.05;
+    config.MotionMagic.MotionMagicExpo_kV = 0.001;
 
     config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-    config.Slot0.kP = 40;
-    config.Slot0.kG = 0.85;
-    config.Slot0.kS = 0.3;
+    config.Slot0.kP = 20;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0;
+
+    config.Slot0.kV = 0.001;
+    config.Slot0.kA = 0;
+    config.Slot0.kG = 0.3;
+    config.Slot0.kS = 0.4;
 
     motor.getConfigurator().apply(config);
   }
@@ -85,6 +94,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPosition(double position) {
+    motor.setControl(motionMagicEVRequest.withPosition(position));
+  }
+
+  @Override
+  public void setPositionV(double position) {
     motor.setControl(new PositionVoltage(position));
   }
 

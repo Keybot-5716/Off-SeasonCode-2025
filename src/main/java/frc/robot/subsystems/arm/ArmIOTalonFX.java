@@ -4,7 +4,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -28,7 +27,7 @@ public class ArmIOTalonFX implements ArmIO {
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 90;
 
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 3;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
     config.Feedback.SensorToMechanismRatio = 0;
 
@@ -37,15 +36,19 @@ public class ArmIOTalonFX implements ArmIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLimit = 60;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 80;
-    config.MotionMagic.MotionMagicAcceleration = 160;
-    config.MotionMagic.MotionMagicJerk = 1600;
+    config.MotionMagic.MotionMagicCruiseVelocity = 0; // Valor original: 80
+    config.MotionMagic.MotionMagicAcceleration = 0; // Valor original: 160
+    config.MotionMagic.MotionMagicExpo_kA = 0.005;
+    config.MotionMagic.MotionMagicExpo_kV = 0.01;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    config.Slot0.kP = 2;
-    config.Slot0.kD = 0.1;
+    config.Slot0.kP = 1.0;
+    config.Slot0.kI = 0.0;
+    config.Slot0.kD = 0.0;
+
     config.Slot0.kG = 0.2;
     config.Slot0.kS = 0.3;
+    config.Slot0.kV = 0.001;
 
     motor.getConfigurator().apply(config);
   }
@@ -84,7 +87,7 @@ public class ArmIOTalonFX implements ArmIO {
 
   @Override
   public void setPosition(double position) {
-    motor.setControl(new PositionVoltage(position));
+    motor.setControl(motionMagicEVRequest.withPosition(position));
   }
 
   @Override

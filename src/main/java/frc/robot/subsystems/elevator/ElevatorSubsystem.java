@@ -32,6 +32,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     STOPPED,
     HOME,
     PREP_LVL,
+    INTAKE,
     MANUAL
   }
 
@@ -39,6 +40,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     STOPPING,
     HOMING,
     PREPARING_LVL,
+    INTAKING,
     MANUAL
   }
 
@@ -67,6 +69,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setPosition(double position) {
     io.setPosition(position);
+    lastDesiredAngle = position;
+  }
+
+  public void setPositionV(double position) {
+    io.setPositionV(position);
     lastDesiredAngle = position;
   }
 
@@ -107,6 +114,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       case HOME -> SubsystemState.HOMING;
       case STOPPED -> SubsystemState.STOPPING;
       case PREP_LVL -> SubsystemState.PREPARING_LVL;
+      case INTAKE -> SubsystemState.INTAKING;
       case MANUAL -> SubsystemState.MANUAL;
       default -> SubsystemState.STOPPING;
     };
@@ -122,6 +130,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         break;
       case PREPARING_LVL:
         setPosition(desiredElevatorPosition);
+        break;
+      case INTAKING:
+        setPositionV(desiredElevatorPosition);
         break;
       case MANUAL:
         runOpenLoop(desiredOutput);

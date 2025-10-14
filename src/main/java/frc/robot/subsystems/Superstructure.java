@@ -491,26 +491,26 @@ public class Superstructure extends SubsystemBase {
   private void goToL2() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L2);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
     setDesiredReefLevel(ReefLevel.L2);
     setDesiredReefLevel(ReefLevel.L2);
   }
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
     setDesiredReefLevel(ReefLevel.L3);
     setDesiredReefLevel(ReefLevel.L3);
-    if (elevatorSub.isPositioned(ElevatorConstants.L3, 0.9)) {
-      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
-    }
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
   }
 
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
     setDesiredReefLevel(ReefLevel.L4);
     setDesiredReefLevel(ReefLevel.L4);
-    if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.9)) {
-      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
-    }
+    // if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.9)) {
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
   }
 
   private void score(ReefLevel level) {
@@ -576,14 +576,8 @@ public class Superstructure extends SubsystemBase {
 
   private void takeCoral() {
     elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.GO_TO_CORAL);
-    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.NONE);
-    if (elevatorSub.isPositioned(ElevatorConstants.GO_TO_CORAL, 0.3)) {
-      rollersSub.setDesiredState(RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
-    }
-    elevatorSub.setDesiredState(
-        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.GO_TO_CORAL);
-    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.NONE);
+        ElevatorSubsystem.DesiredState.INTAKE, ElevatorConstants.GO_TO_CORAL);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.TAKE_CORAL);
     if (elevatorSub.isPositioned(ElevatorConstants.GO_TO_CORAL, 0.3)) {
       rollersSub.setDesiredState(RollerSubsystem.DesiredState.FORWARD, RollerConstants.TAKE_CORAL);
     }
@@ -715,48 +709,10 @@ public class Superstructure extends SubsystemBase {
         });
   }
 
-
   public Command changeButtons(DesiredState coral, DesiredState algae) {
     return Commands.either(
         stateCommand(coral), stateCommand(algae), () -> getCurrentRobotMode() == RobotMode.CORAL);
   }
-  /*
-  public Command changeState(RobotMode rMode){
-    return Commands.either(
-        stateCommand(algae), stateCommand(coral), () -> getCurrentRobotMode() == RobotMode.ALGAE);
-        stateCommand(algae), stateCommand(coral), () -> getCurrentRobotMode() == RobotMode.ALGAE);
-  }
-  */
-
-  // -- OPERATOR COMMANDS
-  public Command setMode1OperatorSystem() {
-    return Commands.either(
-        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L1)),
-        Commands.runOnce(() -> setDesiredAlgaeLevel(AlgaeLevel.PROCESSOR)),
-        () -> robotMode == RobotMode.CORAL);
-  }
-
-  public Command setMode2OperatorSystem() {
-    return Commands.either(
-        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L2)),
-        Commands.runOnce(() -> setDesiredAlgaeIntake(AlgaeIntake.LOW_ALGAE)),
-        () -> robotMode == RobotMode.CORAL);
-  }
-
-  public Command setMode3OperatorSystem() {
-    return Commands.either(
-        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L3)),
-        Commands.runOnce(() -> setDesiredAlgaeIntake(AlgaeIntake.HIGH_ALGAE)),
-        () -> robotMode == RobotMode.CORAL);
-  }
-
-  public Command setMode4OperatorSystem() {
-    return Commands.either(
-        Commands.runOnce(() -> setDesiredReefLevel(ReefLevel.L4)),
-        Commands.runOnce(() -> setDesiredAlgaeLevel(AlgaeLevel.NET)),
-        () -> robotMode == RobotMode.CORAL);
-  }
-
   // SCORE COMMAND
   public Command scoreCommand(BranchType type) {
     return Commands.sequence(

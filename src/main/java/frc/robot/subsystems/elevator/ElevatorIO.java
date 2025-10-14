@@ -27,6 +27,8 @@ public interface ElevatorIO {
 
   public default void setPosition(double position) {}
 
+  public default void setPositionV(double position) {}
+
   public default void setNeutralModeBreak(boolean enable) {}
 
   public default void resetEncoder() {}

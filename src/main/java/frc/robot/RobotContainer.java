@@ -25,6 +25,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.DesiredState;
+import frc.robot.subsystems.SuperstructureConstants.ReefLevel;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.arm.ArmSubsystem;
@@ -40,6 +41,10 @@ import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -55,6 +60,7 @@ public class RobotContainer {
   private final ArmSubsystem arm;
   private final RollerSubsystem rollers;
   private final Superstructure superstructure;
+  private final VisionSubsystem vision;
 
   // Controller
   private final CommandXboxController driver_controller = new CommandXboxController(1);
@@ -78,8 +84,8 @@ public class RobotContainer {
                 driver_controller);
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         arm = new ArmSubsystem(new ArmIOTalonFX());
-        rollers = new RollerSubsystem(new RollerIO() {});
-
+        rollers = new RollerSubsystem(new RollerIOSparkMax() {});
+        vision = new VisionSubsystem(drive::addVisionMeasurement, new VisionIO() {});
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -97,6 +103,11 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIOSparkMax());
+        vision =
+            new VisionSubsystem(
+                drive::addVisionMeasurement,
+                new VisionIOSim(
+                    VisionConstants.cameraName, VisionConstants.robotToCamera, drive::getPose));
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -114,6 +125,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
+        vision = new VisionSubsystem(drive::addVisionMeasurement, new VisionIO() {});
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -144,7 +156,7 @@ public class RobotContainer {
   }
 
   private void configureDriver(CommandXboxController controller) {
-    /*
+
     controller
         .leftTrigger()
         .onTrue(
@@ -178,8 +190,8 @@ public class RobotContainer {
                         () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
                     () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
                 () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
-        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT)); */
-        controller
+        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+    controller
         .leftBumper()
         .onTrue(superstructure.superstructureCommand(DesiredState.TO_FEEDER))
         .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
@@ -192,18 +204,19 @@ public class RobotContainer {
     controller.b().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
     controller.x().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
     controller.y().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
-    controller
-        .rightTrigger()
-        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
-    controller
-        .leftTrigger()
-        .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
-        .onFalse(
-            Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))
-                .andThen(Commands.waitSeconds(1))
-                .andThen(
-                    Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.HOME))));
+    // controller.rightTrigger().onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
+    // controller.leftTrigger().whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL)).onFalse(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.TAKE_CORAL)).andThen(Commands.waitSeconds(1)).andThen(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.HOME))));
     controller.povUp().onTrue(superstructure.setRobotStateCmd());
+    controller
+        .povLeft()
+        .whileTrue(
+            Commands.run(
+                () -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.85)));
+
+    controller
+        .povRight()
+        .whileTrue(
+            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.4)));
   }
 
   /*private void configureOperatorBindings(CommandXboxController controller) {
