@@ -738,4 +738,8 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> -controller.getRightX(),
             () -> controller.rightBumper().getAsBoolean()));
   }
+
+  public SwerveDriveKinematics getKinematics() {
+    return kinematics; // Asegúrate de que `kinematics` sea la instancia de SwerveDriveKinematics
+  }
 }

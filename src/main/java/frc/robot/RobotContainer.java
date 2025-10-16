@@ -16,6 +16,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,6 +47,13 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -66,8 +75,55 @@ public class RobotContainer {
   private final CommandXboxController driver_controller = new CommandXboxController(1);
   private final CommandXboxController operator_controller = new CommandXboxController(2);
 
-  // Dashboard inputs
+  // Auto command chooser
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  // Método para cargar archivos .auto desde un directorio
+  private void loadAutoFiles(String directory) {
+    Path autoDirectory = Paths.get(Filesystem.getDeployDirectory().toString(), directory);
+    System.out.println("Buscando archivos en: " + autoDirectory.toString());
+
+    if (!Files.exists(autoDirectory)) {
+      System.err.println("El directorio no existe: " + autoDirectory.toString());
+      return;
+    }
+
+    try (Stream<Path> paths = Files.list(autoDirectory)) {
+      paths
+          .filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(".auto"))
+          .forEach(
+              path -> {
+                try {
+                  // Leer el contenido del archivo .auto
+                  String content = Files.readString(path);
+                  JSONParser parser = new JSONParser();
+                  JSONObject autoData = (JSONObject) parser.parse(content);
+
+                  // Obtener el nombre del archivo sin la extensión
+                  String autoName = path.getFileName().toString().replace(".auto", "");
+
+                  System.out.println("Cargando archivo: " + autoName);
+
+                  // Crear un comando de ejemplo (puedes personalizarlo según tus necesidades)
+                  Command autoCommand =
+                      new InstantCommand(
+                          () -> {
+                            System.out.println("Ejecutando auto: " + autoName);
+                          });
+
+                  // Agregar el comando al autoChooser
+                  autoChooser.addOption(autoName, autoCommand);
+                } catch (Exception e) {
+                  DriverStation.reportError(
+                      "Error al cargar el archivo .auto: " + path, e.getStackTrace());
+                }
+              });
+    } catch (IOException e) {
+      DriverStation.reportError(
+          "Error al listar archivos en el directorio: " + autoDirectory, e.getStackTrace());
+    }
+  }
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -131,8 +187,10 @@ public class RobotContainer {
         break;
     }
 
-    // Set up auto routines
+    // Dashboard inputs
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    loadAutoFiles("pathplanner/autos");
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -149,10 +207,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureDriver(driver_controller);
-    // configureOperatorBindings(operator_controller);
   }
 
   private void configureDriver(CommandXboxController controller) {
