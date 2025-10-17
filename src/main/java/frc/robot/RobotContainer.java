@@ -14,10 +14,13 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -54,7 +57,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,7 +78,7 @@ public class RobotContainer {
   private final CommandXboxController operator_controller = new CommandXboxController(2);
 
   // Auto command chooser
-  private final LoggedDashboardChooser<Command> autoChooser;
+  private final SendableChooser<Command> autoChooser;
 
   // Método para cargar archivos .auto desde un directorio
   private void loadAutoFiles(String directory) {
@@ -187,10 +189,16 @@ public class RobotContainer {
         break;
     }
 
-    // Dashboard inputs
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    NamedCommands.registerCommand(
+        "Giroooos",
+        Commands.runOnce(
+            () -> {
+              System.out.println("yeahhhh");
+            }));
 
-    loadAutoFiles("pathplanner/autos");
+    // Dashboard inputs
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Mode", autoChooser);
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -323,6 +331,6 @@ public class RobotContainer {
   } */
 
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return autoChooser.getSelected();
   }
 }

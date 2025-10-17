@@ -474,6 +474,23 @@ public class SwerveSubsystem extends SubsystemBase {
     runVelocity(new ChassisSpeeds());
   }
 
+  public void moveToPoint(double x, double y) {
+    System.out.println("Moviendo al punto: X=" + x + ", Y=" + y);
+
+    // Lógica para mover el robot al punto (x, y)
+    // Esto puede incluir cálculos de PID, control de velocidad, etc.
+    double speedX = x * 0.1; // Escalar la velocidad según la distancia
+    double speedY = y * 0.1;
+
+    setModuleStates(speedX, speedY); // Método que controla los módulos de las ruedas
+  }
+
+  private void setModuleStates(double speedX, double speedY) {
+    // Lógica para controlar los módulos de las ruedas
+    System.out.println("Velocidades: speedX=" + speedX + ", speedY=" + speedY);
+    // Aquí puedes implementar el control de los módulos
+  }
+
   /**
    * Stops the drive and turns the modules to an X arrangement to resist movement. The modules will
    * return to their normal orientations the next time a nonzero velocity is requested.
