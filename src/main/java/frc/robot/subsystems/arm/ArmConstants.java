@@ -9,7 +9,7 @@ public class ArmConstants {
 
   public static final double L1 = 27.0;
   public static final double L2 = 57.0;
-  public static final double L3 = 57.0;
+  public static final double L3 = 62.0;
   public static final double L4 = 70.0;
 
   public static final double SCORE_L2 = 43.0;

@@ -20,23 +20,23 @@ public class FieldConstants {
   public static final Pose2d NONE = new Pose2d(0, 0, new Rotation2d());
   public static final Pose2d NONE1 = new Pose2d(3.169, 4.015, new Rotation2d());
 
-  public static final Pose2d REEF_1A = new Pose2d(3, 4.19, Rotation2d.fromDegrees(0));
-  public static final Pose2d REEF_1B = new Pose2d(3, 3.86, Rotation2d.fromDegrees(0));
+  public static final Pose2d REEF_1A = new Pose2d(3.2, 4.19, Rotation2d.fromDegrees(0));
+  public static final Pose2d REEF_1B = new Pose2d(3.2, 3.85, Rotation2d.fromDegrees(0));
 
-  public static final Pose2d REEF_2A = new Pose2d(3.57, 2.77, Rotation2d.fromDegrees(60));
-  public static final Pose2d REEF_2B = new Pose2d(3.868, 2.617, Rotation2d.fromDegrees(60));
+  public static final Pose2d REEF_2A = new Pose2d(3.695, 3, Rotation2d.fromDegrees(60));
+  public static final Pose2d REEF_2B = new Pose2d(3.978, 2.816, Rotation2d.fromDegrees(60));
 
-  public static final Pose2d REEF_3A = new Pose2d(5.107, 2.616, Rotation2d.fromDegrees(120)); //
-  public static final Pose2d REEF_3B = new Pose2d(5.4, 2.795, Rotation2d.fromDegrees(120)); //
+  public static final Pose2d REEF_3A = new Pose2d(5.018, 2.806, Rotation2d.fromDegrees(120)); //
+  public static final Pose2d REEF_3B = new Pose2d(5.291, 2.969, Rotation2d.fromDegrees(120)); //
 
-  public static final Pose2d REEF_4A = new Pose2d(6.0, 3.86, Rotation2d.fromDegrees(180)); //
-  public static final Pose2d REEF_4B = new Pose2d(6.0, 4.19, Rotation2d.fromDegrees(180)); //
+  public static final Pose2d REEF_4A = new Pose2d(5.8, 4.19, Rotation2d.fromDegrees(180)); //
+  public static final Pose2d REEF_4B = new Pose2d(5.8, 3.85, Rotation2d.fromDegrees(180)); //
 
-  public static final Pose2d REEF_5A = new Pose2d(5.4, 5.27, Rotation2d.fromDegrees(-120)); //
-  public static final Pose2d REEF_5B = new Pose2d(5.11, 5.433, Rotation2d.fromDegrees(-120)); //
+  public static final Pose2d REEF_5A = new Pose2d(5.291, 5.081, Rotation2d.fromDegrees(-120)); //
+  public static final Pose2d REEF_5B = new Pose2d(5.022, 5.241, Rotation2d.fromDegrees(-120)); //
 
-  public static final Pose2d REEF_6A = new Pose2d(3.868, 5.433, Rotation2d.fromDegrees(-60));
-  public static final Pose2d REEF_6B = new Pose2d(3.574, 5.278, Rotation2d.fromDegrees(-60));
+  public static final Pose2d REEF_6A = new Pose2d(3.991, 5.241, Rotation2d.fromDegrees(-60));
+  public static final Pose2d REEF_6B = new Pose2d(3.691, 5.079, Rotation2d.fromDegrees(-60));
 
   public static final Pose2d LEFT_FEEDER = new Pose2d(0, 8, Rotation2d.fromDegrees(-55));
   public static final Pose2d RIGHT_FEEDER = new Pose2d(0, 0, Rotation2d.fromDegrees(55));

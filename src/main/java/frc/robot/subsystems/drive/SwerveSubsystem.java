@@ -277,6 +277,7 @@ public class SwerveSubsystem extends SubsystemBase {
     subState = setStateTransitions();
     Logger.recordOutput("Drive/Desired State", desiredState);
     Logger.recordOutput("Drive/Subsystem State", subState);
+    Logger.recordOutput("Drive/IsRedAlliance", isFlipped);
 
     applyStates();
   }
@@ -588,11 +589,11 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /** Drive to Pose functions */
-  public static final PIDController TRANSLATION_PID = new PIDController(4, 0, 0);
+  public static final PIDController TRANSLATION_PID = new PIDController(8, 0, 0);
 
   public static final ProfiledPIDController ROTATION_PID =
       new ProfiledPIDController(
-          3,
+          5,
           0,
           0,
           new TrapezoidProfile.Constraints(
@@ -673,9 +674,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void rotateToPose(
       Distance targetDistance, Pose2d target, LinearVelocity xVel, LinearVelocity yVel) {
     this.runVelocity(
-        new Translation2d(
-            xVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond),
-            yVel.times(RED_ALLIANCE_MULTIPLIER).in(Units.MetersPerSecond)),
+        new Translation2d(xVel.in(Units.MetersPerSecond), yVel.in(Units.MetersPerSecond)),
         getVelocityToRotate(target.getRotation()).in(Units.RadiansPerSecond),
         true);
   }
@@ -685,10 +684,10 @@ public class SwerveSubsystem extends SubsystemBase {
     this.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             getJoysticksChassisSpeeds(
-                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
                 () -> -controller.getRightX(),
-                () -> controller.rightBumper().getAsBoolean()),
+                () -> controller.leftStick().getAsBoolean()),
             isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
   }
 
@@ -723,8 +722,8 @@ public class SwerveSubsystem extends SubsystemBase {
     this.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             getLockedAngleJoystickChassisSpeeds(
-                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
                 this::getDesiredLockedRotation,
                 () -> controller.rightBumper().getAsBoolean()),
             isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
@@ -733,8 +732,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private void robotRelativeMovement() {
     this.runVelocity(
         getJoysticksChassisSpeeds(
-            () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
-            () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
             () -> -controller.getRightX(),
             () -> controller.rightBumper().getAsBoolean()));
   }

@@ -484,22 +484,22 @@ public class Superstructure extends SubsystemBase {
   private void goToL1() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L1);
-    setDesiredReefLevel(ReefLevel.L1);
+    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     setDesiredReefLevel(ReefLevel.L1);
   }
 
   private void goToL2() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L2);
+    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
-    setDesiredReefLevel(ReefLevel.L2);
     setDesiredReefLevel(ReefLevel.L2);
   }
 
   private void goToL3() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
-    setDesiredReefLevel(ReefLevel.L3);
+    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     setDesiredReefLevel(ReefLevel.L3);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L3);
   }
@@ -507,7 +507,7 @@ public class Superstructure extends SubsystemBase {
   private void goToL4() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
-    setDesiredReefLevel(ReefLevel.L4);
+    swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     setDesiredReefLevel(ReefLevel.L4);
     // if (elevatorSub.isPositioned(ElevatorConstants.L4, 0.9)) {
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L4);
@@ -520,22 +520,26 @@ public class Superstructure extends SubsystemBase {
       case L1:
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
+        swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
         break;
       case L2:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L2);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
+        swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
 
         break;
       case L3:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L3);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
+        swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
 
         break;
       case L4:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L4);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+        swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
 
         if (armSub.isPositioned(ArmConstants.SCORE_L4, 5)) {
           rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.15);

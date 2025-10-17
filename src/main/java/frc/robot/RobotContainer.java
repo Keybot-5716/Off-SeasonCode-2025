@@ -43,6 +43,7 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -85,7 +86,10 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         arm = new ArmSubsystem(new ArmIOTalonFX());
         rollers = new RollerSubsystem(new RollerIOSparkMax() {});
-        vision = new VisionSubsystem(drive::addVisionMeasurement, new VisionIO() {});
+        vision =
+            new VisionSubsystem(
+                drive::addVisionMeasurement,
+                new VisionIOLimelight("limelight-pepelin", drive::getRotation));
         superstructure = new Superstructure(drive, elevator, arm, rollers);
 
         break;
@@ -158,7 +162,7 @@ public class RobotContainer {
   private void configureDriver(CommandXboxController controller) {
 
     controller
-        .leftTrigger()
+        .leftBumper()
         .onTrue(
             Commands.either(
                 superstructure.superstructureCommand(DesiredState.SCORE_LEFT_L1),
@@ -172,10 +176,9 @@ public class RobotContainer {
                             () -> superstructure.getCurrentReefLevel() == ReefLevel.L4),
                         () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
                     () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
-                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
-        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1));
     controller
-        .rightTrigger()
+        .rightBumper()
         .onTrue(
             Commands.either(
                 superstructure.superstructureCommand(DesiredState.SCORE_RIGHT_L1),
@@ -189,12 +192,7 @@ public class RobotContainer {
                             () -> superstructure.getCurrentReefLevel() == ReefLevel.L4),
                         () -> superstructure.getCurrentReefLevel() == ReefLevel.L3),
                     () -> superstructure.getCurrentReefLevel() == ReefLevel.L2),
-                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1))
-        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
-    controller
-        .leftBumper()
-        .onTrue(superstructure.superstructureCommand(DesiredState.TO_FEEDER))
-        .onFalse(superstructure.superstructureCommand(DesiredState.DEFAULT));
+                () -> superstructure.getCurrentReefLevel() == ReefLevel.L1));
 
     controller
         .start()
@@ -204,8 +202,17 @@ public class RobotContainer {
     controller.b().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
     controller.x().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
     controller.y().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
-    // controller.rightTrigger().onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
-    // controller.leftTrigger().whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL)).onFalse(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.TAKE_CORAL)).andThen(Commands.waitSeconds(1)).andThen(Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.HOME))));
+    controller
+        .rightTrigger()
+        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
+    controller
+        .leftTrigger()
+        .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
+        .onFalse(
+            Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.TAKE_CORAL))
+                .andThen(Commands.waitSeconds(0.7))
+                .andThen(
+                    Commands.runOnce(() -> superstructure.setDesiredState(DesiredState.HOME))));
     controller.povUp().onTrue(superstructure.setRobotStateCmd());
     controller
         .povLeft()

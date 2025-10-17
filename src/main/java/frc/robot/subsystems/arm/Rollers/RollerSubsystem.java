@@ -64,10 +64,10 @@ public class RollerSubsystem extends SubsystemBase {
         stop();
         break;
       case FORWARDING:
-        setRollerSpeed(desiredSpeedRollers);
+        setRollerSpeed(-desiredSpeedRollers);
         break;
       case REVERSING:
-        setRollerSpeed(-desiredSpeedRollers);
+        setRollerSpeed(desiredSpeedRollers);
         break;
     }
   }
