@@ -79,7 +79,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController driver_controller = new CommandXboxController(1);
-  private final CommandXboxController operator_controller = new CommandXboxController(2);
+  private final CommandXboxController Emergency_Operator_controller = new CommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -222,7 +222,7 @@ public class RobotContainer {
     configureDriver(driver_controller);
 
     configNamedCommands();
-    // configureOperatorBindings(operator_controller);
+    configureEmergencyOperatorBindings(Emergency_Operator_controller);
   }
 
   private void configureDriver(CommandXboxController controller) {
@@ -307,5 +307,13 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  private void configureEmergencyOperatorBindings(CommandXboxController controller) {
+    // Configure operator button bindings here
+
+    controller.a().onTrue(new InstantCommand(() -> arm.setTargetPosition(50))); // ejemplo
+    controller.povUp().onTrue(new InstantCommand(() -> arm.adjustTargetPosition(+5)));
+    controller.povDown().onTrue(new InstantCommand(() -> arm.adjustTargetPosition(-5)));
   }
 }

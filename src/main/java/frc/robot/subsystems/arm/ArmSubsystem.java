@@ -31,14 +31,18 @@ public class ArmSubsystem extends SubsystemBase {
     STOPPED,
     HOME,
     PREP_LVL,
-    MANUAL
+    MANUAL,
+    TEST_POSITION,
+    CHUNKS
   }
 
   public enum SubsystemState {
     STOPPING,
     HOMING,
     PREPARING_LVL,
-    MANUAL
+    MANUAL,
+    TESTING_POSITION,
+    CHUNKING
   }
 
   public ArmSubsystem(ArmIO io) {
@@ -111,6 +115,7 @@ public class ArmSubsystem extends SubsystemBase {
       case STOPPED -> SubsystemState.STOPPING;
       case PREP_LVL -> SubsystemState.PREPARING_LVL;
       case MANUAL -> SubsystemState.MANUAL;
+      case TEST_POSITION -> SubsystemState.TESTING_POSITION;
       default -> SubsystemState.STOPPING;
     };
   }
@@ -145,5 +150,13 @@ public class ArmSubsystem extends SubsystemBase {
   public void setDesiredStateWithOutput(DesiredState desiredState, double desiredOutput) {
     this.desiredState = desiredState;
     this.desiredOutput = desiredOutput;
+  }
+
+  public void setTargetPosition(double position) {
+    desiredElevatorPosition = position;
+  }
+
+  public void adjustTargetPosition(double delta) {
+    desiredElevatorPosition += delta;
   }
 }
