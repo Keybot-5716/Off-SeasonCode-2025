@@ -85,9 +85,9 @@ public class SwerveSubsystem extends SubsystemBase {
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 74.088;
-  private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
+  private static final double ROBOT_MASS_KG = 65;
+  private static final double ROBOT_MOI = 5.5;
+  private static final double WHEEL_COF = 1;
   private static final RobotConfig PP_CONFIG =
       new RobotConfig(
           ROBOT_MASS_KG,
@@ -208,15 +208,13 @@ public class SwerveSubsystem extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
     this.controller = controller;
-    this.isFlipped =
-        DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == Alliance.Red;
     this.RED_ALLIANCE_MULTIPLIER = isFlipped ? -1 : 1;
     maxDistanceToPose = Units.Meters.of(0);
   }
 
   @Override
   public void periodic() {
+    isFlipped = Constants.isRedAlliance();
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -684,9 +682,9 @@ public class SwerveSubsystem extends SubsystemBase {
     this.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             getJoysticksChassisSpeeds(
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX(),
+                () -> -controller.getLeftY() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getLeftX() * RED_ALLIANCE_MULTIPLIER,
+                () -> -controller.getRightX() * RED_ALLIANCE_MULTIPLIER,
                 () -> controller.leftStick().getAsBoolean()),
             isFlipped ? this.getRotation().plus(new Rotation2d(Math.PI)) : this.getRotation()));
   }
@@ -700,8 +698,8 @@ public class SwerveSubsystem extends SubsystemBase {
     this.driveToPose(
         poseDistance,
         desiredPose,
-        Units.MetersPerSecond.of(x.getX()),
-        Units.MetersPerSecond.of(x.getY()),
+        Units.MetersPerSecond.of(x.getX() * RED_ALLIANCE_MULTIPLIER),
+        Units.MetersPerSecond.of(x.getY() * RED_ALLIANCE_MULTIPLIER),
         Units.Meters.of(0.5));
   }
 

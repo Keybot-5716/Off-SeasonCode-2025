@@ -14,8 +14,11 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,6 +35,9 @@ import frc.robot.subsystems.arm.ArmSubsystem;
 import frc.robot.subsystems.arm.Rollers.RollerIO;
 import frc.robot.subsystems.arm.Rollers.RollerIOSparkMax;
 import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -46,6 +52,13 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -62,6 +75,7 @@ public class RobotContainer {
   private final RollerSubsystem rollers;
   private final Superstructure superstructure;
   private final VisionSubsystem vision;
+  private final ClimberSubsystem climber;
 
   // Controller
   private final CommandXboxController driver_controller = new CommandXboxController(1);
@@ -70,6 +84,52 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
+  // Método para cargar archivos .auto desde un directorio
+  private void loadAutoFiles(String directory) {
+    Path autoDirectory = Paths.get(Filesystem.getDeployDirectory().toString(), directory);
+    System.out.println("Buscando archivos en: " + autoDirectory.toString());
+
+    if (!Files.exists(autoDirectory)) {
+      System.err.println("El directorio no existe: " + autoDirectory.toString());
+      return;
+    }
+
+    try (Stream<Path> paths = Files.list(autoDirectory)) {
+      paths
+          .filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(".auto"))
+          .forEach(
+              path -> {
+                try {
+                  // Leer el contenido del archivo .auto
+                  String content = Files.readString(path);
+                  JSONParser parser = new JSONParser();
+                  JSONObject autoData = (JSONObject) parser.parse(content);
+
+                  // Obtener el nombre del archivo sin la extensión
+                  String autoName = path.getFileName().toString().replace(".auto", "");
+
+                  System.out.println("Cargando archivo: " + autoName);
+
+                  // Crear un comando de ejemplo (puedes personalizarlo según tus necesidades)
+                  Command autoCommand =
+                      new InstantCommand(
+                          () -> {
+                            System.out.println("Ejecutando auto: " + autoName);
+                          });
+
+                  // Agregar el comando al autoChooser
+                  autoChooser.addOption(autoName, autoCommand);
+                } catch (Exception e) {
+                  DriverStation.reportError(
+                      "Error al cargar el archivo .auto: " + path, e.getStackTrace());
+                }
+              });
+    } catch (IOException e) {
+      DriverStation.reportError(
+          "Error al listar archivos en el directorio: " + autoDirectory, e.getStackTrace());
+    }
+  }
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -86,11 +146,12 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIOTalonFX());
         arm = new ArmSubsystem(new ArmIOTalonFX());
         rollers = new RollerSubsystem(new RollerIOSparkMax() {});
+        climber = new ClimberSubsystem(new ClimberIOTalonFX());
         vision =
             new VisionSubsystem(
                 drive::addVisionMeasurement,
                 new VisionIOLimelight("limelight-pepelin", drive::getRotation));
-        superstructure = new Superstructure(drive, elevator, arm, rollers);
+        superstructure = new Superstructure(drive, elevator, arm, rollers, climber);
 
         break;
 
@@ -107,12 +168,13 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIOSparkMax());
+        climber = new ClimberSubsystem(new ClimberIO() {});
         vision =
             new VisionSubsystem(
                 drive::addVisionMeasurement,
                 new VisionIOSim(
                     VisionConstants.cameraName, VisionConstants.robotToCamera, drive::getPose));
-        superstructure = new Superstructure(drive, elevator, arm, rollers);
+        superstructure = new Superstructure(drive, elevator, arm, rollers, climber);
 
         break;
 
@@ -129,14 +191,16 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(new ElevatorIO() {});
         arm = new ArmSubsystem(new ArmIO() {});
         rollers = new RollerSubsystem(new RollerIO() {});
+        climber = new ClimberSubsystem(new ClimberIO() {});
         vision = new VisionSubsystem(drive::addVisionMeasurement, new VisionIO() {});
-        superstructure = new Superstructure(drive, elevator, arm, rollers);
+        superstructure = new Superstructure(drive, elevator, arm, rollers, climber);
 
         break;
     }
 
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser =
+        new LoggedDashboardChooser<>("Autonomous papupro", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -156,6 +220,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriver(driver_controller);
+
+    configNamedCommands();
     // configureOperatorBindings(operator_controller);
   }
 
@@ -224,54 +290,20 @@ public class RobotContainer {
         .povRight()
         .whileTrue(
             Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.4)));
+    controller
+        .povDown()
+        .onTrue(superstructure.superstructureCommand(DesiredState.CLIMB))
+        .onFalse(superstructure.superstructureCommand(DesiredState.STOPPED));
   }
 
-  /*private void configureOperatorBindings(CommandXboxController controller) {
-
-    controller
-        .a()
-        .whileTrue(
-            Commands.run(
-                () ->
-                    elevator.setDesiredStateWithOutput(ElevatorSubsystem.DesiredState.MANUAL, 0.1)))
-        .onFalse(
-            Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
-    controller
-        .b()
-        .whileTrue(
-            Commands.run(
-                () ->
-                    elevator.setDesiredStateWithOutput(
-                        ElevatorSubsystem.DesiredState.MANUAL, -0.1)))
-        .onFalse(
-            Commands.runOnce(
-                () -> elevator.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED)));
-    controller
-        .x()
-        .whileTrue(
-            Commands.run(
-                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, 0.3)))
-        .onFalse(Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
-    controller
-        .y()
-        .whileTrue(
-            Commands.run(
-                () -> arm.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, -0.1)))
-        .onFalse(Commands.runOnce(() -> arm.setDesiredState(ArmSubsystem.DesiredState.STOPPED)));
-    controller
-        .rightBumper()
-        .whileTrue(
-            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.FORWARD, 0.5)))
-        .onFalse(
-            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-    controller
-        .leftBumper()
-        .whileTrue(
-            Commands.run(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.3)))
-        .onFalse(
-            Commands.runOnce(() -> rollers.setDesiredState(RollerSubsystem.DesiredState.DEFAULT)));
-  } */
+  public void configNamedCommands() {
+    NamedCommands.registerCommand(
+        "Giroooos",
+        Commands.runOnce(
+            () -> {
+              System.out.println("yeahhhh");
+            }));
+  }
 
   public Command getAutonomousCommand() {
     return autoChooser.get();

@@ -16,6 +16,7 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmSubsystem;
 import frc.robot.subsystems.arm.Rollers.RollerConstants;
 import frc.robot.subsystems.arm.Rollers.RollerSubsystem;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -28,6 +29,7 @@ public class Superstructure extends SubsystemBase {
   private final ElevatorSubsystem elevatorSub;
   private final ArmSubsystem armSub;
   private final RollerSubsystem rollersSub;
+  private final ClimberSubsystem climberSub;
 
   private boolean isAutonomous = DriverStation.isAutonomous();
 
@@ -146,11 +148,13 @@ public class Superstructure extends SubsystemBase {
       SwerveSubsystem swerveSub,
       ElevatorSubsystem elevatorSub,
       ArmSubsystem armSub,
-      RollerSubsystem rollersSub) {
+      RollerSubsystem rollersSub,
+      ClimberSubsystem climberSub) {
     this.swerveSub = swerveSub;
     this.elevatorSub = elevatorSub;
     this.armSub = armSub;
     this.rollersSub = rollersSub;
+    this.climberSub = climberSub;
 
     desiredRobotMode = RobotMode.CORAL;
 
@@ -438,6 +442,7 @@ public class Superstructure extends SubsystemBase {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.STOPPED);
     armSub.setDesiredState(ArmSubsystem.DesiredState.STOPPED);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    climberSub.setDesiredState(ClimberSubsystem.DesiredState.STOPPED);
   }
 
   private void home() {
@@ -607,7 +612,9 @@ public class Superstructure extends SubsystemBase {
 
   private void prepClimb() {}
 
-  private void climb() {}
+  private void climb() {
+    climberSub.setDesiredState(ClimberSubsystem.DesiredState.CLIMBED, 0.5);
+  }
 
   public void setDesiredState(DesiredState state) {
     this.desiredState = state;
@@ -725,5 +732,49 @@ public class Superstructure extends SubsystemBase {
         Commands.waitUntil(() -> elevatorSub.isAtDesiredPos()));
     // falta poner el retroceso del chasis -Jorge
     // falta poner el retroceso del chasis -Jorge
+  }
+
+  public Command coralL1AlgaePROCESSOR() {
+    return Commands.runOnce(
+        () -> {
+          if (robotMode == RobotMode.ALGAE) {
+            this.superstructureCommand(DesiredState.GO_PROCESSOR);
+          } else {
+            this.superstructureCommand(DesiredState.PREP_L1);
+          }
+        });
+  }
+
+  public Command coralL2algaeLOW() {
+    return Commands.runOnce(
+        () -> {
+          if (robotMode == RobotMode.ALGAE) {
+            this.superstructureCommand(DesiredState.ALGAE_LOW_INTAKE);
+          } else {
+            this.superstructureCommand(DesiredState.PREP_L2);
+          }
+        });
+  }
+
+  public Command coralL3algaeHIGH() {
+    return Commands.runOnce(
+        () -> {
+          if (robotMode == RobotMode.ALGAE) {
+            this.superstructureCommand(DesiredState.ALGAE_HIGH_INTAKE);
+          } else {
+            this.superstructureCommand(DesiredState.PREP_L3);
+          }
+        });
+  }
+
+  public Command coralL4AlgaeNET() {
+    return Commands.runOnce(
+        () -> {
+          if (robotMode == RobotMode.ALGAE) {
+            this.superstructureCommand(DesiredState.GO_NET);
+          } else {
+            this.superstructureCommand(DesiredState.PREP_L4);
+          }
+        });
   }
 }
