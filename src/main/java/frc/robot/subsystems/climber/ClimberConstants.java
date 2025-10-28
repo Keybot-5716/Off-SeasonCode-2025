@@ -1,8 +1,6 @@
 package frc.robot.subsystems.climber;
 
 public class ClimberConstants {
-  // Ignorar:
-  // public static final int CLIMBERSPARKMAXID = 0;
 
   public static final int CLIMBER_ID = 16;
 

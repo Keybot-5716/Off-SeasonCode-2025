@@ -52,12 +52,11 @@ public class Superstructure extends SubsystemBase {
     PREP_L4,
     RESET,
     OUTTAKE_CORAL,
-    OUTTAKE_ALGAE,
+    CLEAN_ALGAE,
     RETRIEVE_SCORE,
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
-    TAKE_ALGAE,
     INTAKE_ALGAE,
     ALGAE_LOW_INTAKE,
     ALGAE_HIGH_INTAKE,
@@ -67,7 +66,8 @@ public class Superstructure extends SubsystemBase {
     SCORE_NET,
     OVERRIDE_CORAL,
     PREP_CLIMB,
-    CLIMB
+    CLIMB,
+    MANUAL
   }
 
   public enum CurrentState {
@@ -106,8 +106,7 @@ public class Superstructure extends SubsystemBase {
     TO_FEEDER,
     INTAKE_CORAL,
     TAKE_CORAL,
-    TAKE_ALGAE,
-    INTAKE_ALGAE,
+    CLEAN_ALGAE,
     ALGAE_LOW_INTAKE,
     ALGAE_HIGH_INTAKE,
     GO_PROCESSOR,
@@ -116,7 +115,8 @@ public class Superstructure extends SubsystemBase {
     SCORE_NET,
     OVERRIDE_CORAL,
     PREP_CLIMB,
-    CLIMB
+    CLIMB,
+    MANUAL
   }
 
   private DesiredState desiredState = DesiredState.STOPPED;
@@ -160,11 +160,11 @@ public class Superstructure extends SubsystemBase {
 
     // CORAL
     desiredBranch = BranchType.LEFT;
-    desiredReefLevel = ReefLevel.L1;
+    desiredReefLevel = ReefLevel.NONE;
 
     // ALGAE
-    desiredAlgaeLevel = AlgaeLevel.NET;
-    desiredAlgaeIntake = AlgaeIntake.LOW_ALGAE;
+    desiredAlgaeLevel = AlgaeLevel.NONE;
+    desiredAlgaeIntake = AlgaeIntake.NONE;
   }
 
   @Override
@@ -254,8 +254,9 @@ public class Superstructure extends SubsystemBase {
       case OUTTAKE_CORAL:
         currentState = isAutonomous ? CurrentState.OUTTAKE_AUTO_CORAL : CurrentState.OUTTAKE_CORAL;
         break;
-      case OUTTAKE_ALGAE:
-        currentState = CurrentState.OUTTAKE_ALGAE;
+      case CLEAN_ALGAE:
+        currentState = CurrentState.CLEAN_ALGAE;
+        break;
       case RETRIEVE_SCORE:
         currentState = CurrentState.RETRIEVE_SCORE;
         break;
@@ -267,11 +268,6 @@ public class Superstructure extends SubsystemBase {
         break;
       case TAKE_CORAL:
         currentState = CurrentState.TAKE_CORAL;
-        break;
-      case TAKE_ALGAE:
-        currentState = CurrentState.TAKE_ALGAE;
-      case INTAKE_ALGAE:
-        currentState = CurrentState.INTAKE_ALGAE;
         break;
       case ALGAE_LOW_INTAKE:
         currentState = CurrentState.ALGAE_LOW_INTAKE;
@@ -299,6 +295,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case CLIMB:
         currentState = CurrentState.CLIMB;
+        break;
+      case MANUAL:
+        currentState = CurrentState.MANUAL;
         break;
     }
 
@@ -379,6 +378,7 @@ public class Superstructure extends SubsystemBase {
       case PREP_AUTO_L1:
         break;
       case PREP_AUTO_L2:
+        goToL2();
         break;
       case PREP_AUTO_L3:
         break;
@@ -404,7 +404,7 @@ public class Superstructure extends SubsystemBase {
       case TAKE_CORAL:
         takeCoral();
         break;
-      case INTAKE_ALGAE:
+      case CLEAN_ALGAE:
         intakeAlgae();
         break;
       case ALGAE_LOW_INTAKE:
@@ -434,6 +434,9 @@ public class Superstructure extends SubsystemBase {
       case CLIMB:
         climb();
         break;
+      case MANUAL:
+        manual();
+        break;
     }
   }
 
@@ -449,7 +452,10 @@ public class Superstructure extends SubsystemBase {
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.HOME);
     rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    climberSub.setDesiredState(ClimberSubsystem.DesiredState.STOPPED);
     setDesiredReefLevel(ReefLevel.NONE);
+    setDesiredAlgaeLevel(AlgaeLevel.NONE);
+    setDesiredAlgaeIntake(AlgaeIntake.NONE);
     if (elevatorSub.getElevatorPosInRotations() <= 1.1) {
       armSub.setDesiredState(ArmSubsystem.DesiredState.HOME);
     }
@@ -467,8 +473,7 @@ public class Superstructure extends SubsystemBase {
   // ==== Teleop States
   // -- Score States
   private void autoAllignL1(BranchType branchType) {
-    swerveSub.setDesiredPose(
-        getDesiredReef(branchType == BranchType.LEFT), SwerveSubsystem.maxMetersToReef);
+    swerveSub.setDesiredPose(getDesiredReefL1(), SwerveSubsystem.maxMetersToReef);
   }
 
   private void autoAllignL2(BranchType branchType) {
@@ -489,6 +494,7 @@ public class Superstructure extends SubsystemBase {
   private void goToL1() {
     elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L1);
     armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.L1);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
     swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
     setDesiredReefLevel(ReefLevel.L1);
   }
@@ -532,14 +538,12 @@ public class Superstructure extends SubsystemBase {
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L2);
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
         swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
-
         break;
       case L3:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L3);
         elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L3);
         rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.2);
         swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
-
         break;
       case L4:
         armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.SCORE_L4);
@@ -549,7 +553,6 @@ public class Superstructure extends SubsystemBase {
         if (armSub.isPositioned(ArmConstants.SCORE_L4, 5)) {
           rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.15);
         }
-
         break;
     }
   }
@@ -596,24 +599,71 @@ public class Superstructure extends SubsystemBase {
 
   // -- Algae States
 
-  private void intakeAlgae() {}
+  private void intakeAlgae() {
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.REVERSE, 0.4);
+    if (algaeIntake == AlgaeIntake.LOW_ALGAE) {
+      elevatorSub.setDesiredState(
+          ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.LOW_ALGAE);
+      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.ALGAE_LOW_INTAKE);
+    } else if (algaeIntake == AlgaeIntake.HIGH_ALGAE) {
+      elevatorSub.setDesiredState(
+          ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.HIGH_ALGAE);
+      armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.ALGAE_HIGH_INTAKE);
+    }
+  }
 
-  private void intakeLowALgae() {}
+  private void intakeLowALgae() {
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.LOW_ALGAE);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.ALGAE_LOW_INTAKE);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    setDesiredAlgaeIntake(AlgaeIntake.LOW_ALGAE);
+  }
 
-  private void intakeHighAlgae() {}
+  private void intakeHighAlgae() {
+    elevatorSub.setDesiredState(
+        ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.HIGH_ALGAE);
+    armSub.setDesiredState(ArmSubsystem.DesiredState.PREP_LVL, ArmConstants.ALGAE_HIGH_INTAKE);
+    rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+    setDesiredAlgaeIntake(AlgaeIntake.HIGH_ALGAE);
+  }
 
-  private void prepNet() {}
+  private void prepNet() {
+    setDesiredAlgaeLevel(AlgaeLevel.NET);
+  }
 
   private void scoreNet() {}
 
-  private void prepProcessor() {}
+  private void prepProcessor() {
+    setDesiredAlgaeLevel(AlgaeLevel.PROCESSOR);
+  }
 
   private void scoreProcessor() {}
 
   private void prepClimb() {}
 
   private void climb() {
-    climberSub.setDesiredState(ClimberSubsystem.DesiredState.CLIMBED, 0.5);
+    climberSub.setDesiredState(ClimberSubsystem.DesiredState.CLIMBED, 1.0);
+  }
+
+  private void manual() {
+    switch (reefLevel) {
+      case NONE:
+        break;
+      case L1:
+        break;
+      case L2:
+        break;
+      case L3:
+        break;
+      case L4:
+        elevatorSub.setDesiredState(ElevatorSubsystem.DesiredState.PREP_LVL, ElevatorConstants.L4);
+        armSub.setDesiredStateWithOutput(ArmSubsystem.DesiredState.MANUAL, -0.1);
+        swerveSub.setDesiredState(SwerveSubsystem.DesiredState.MANUAL_DRIVE);
+        rollersSub.setDesiredState(RollerSubsystem.DesiredState.DEFAULT);
+        climberSub.setDesiredState(ClimberSubsystem.DesiredState.STOPPED);
+        break;
+    }
   }
 
   public void setDesiredState(DesiredState state) {
@@ -697,6 +747,17 @@ public class Superstructure extends SubsystemBase {
     return desiredFeeder;
   }
 
+  public Pose2d getDesiredReefL1() {
+    List<Pose2d> ReefL1 = FieldConstants.getReefL1Pos().get();
+    Pose2d currentPose = swerveSub.getPose();
+    Pose2d desiredReefL1 = currentPose.nearest(ReefL1);
+    int closestIndex = ReefL1.indexOf(desiredReefL1);
+
+    desiredReefL1 = ReefL1.get(closestIndex);
+
+    return desiredReefL1;
+  }
+
   public Command stateCommand(DesiredState State) {
     return stateCommand(State, false);
   }
@@ -735,46 +796,37 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Command coralL1AlgaePROCESSOR() {
-    return Commands.runOnce(
-        () -> {
-          if (robotMode == RobotMode.ALGAE) {
-            this.superstructureCommand(DesiredState.GO_PROCESSOR);
-          } else {
-            this.superstructureCommand(DesiredState.PREP_L1);
-          }
-        });
+    return Commands.either(
+        this.superstructureCommand(DesiredState.GO_PROCESSOR),
+        this.superstructureCommand(DesiredState.PREP_L1),
+        () -> (robotMode == RobotMode.ALGAE));
   }
 
   public Command coralL2algaeLOW() {
-    return Commands.runOnce(
-        () -> {
-          if (robotMode == RobotMode.ALGAE) {
-            this.superstructureCommand(DesiredState.ALGAE_LOW_INTAKE);
-          } else {
-            this.superstructureCommand(DesiredState.PREP_L2);
-          }
-        });
+    return Commands.either(
+        this.superstructureCommand(DesiredState.ALGAE_LOW_INTAKE),
+        this.superstructureCommand(DesiredState.PREP_L2),
+        () -> (robotMode == RobotMode.ALGAE));
   }
 
   public Command coralL3algaeHIGH() {
-    return Commands.runOnce(
-        () -> {
-          if (robotMode == RobotMode.ALGAE) {
-            this.superstructureCommand(DesiredState.ALGAE_HIGH_INTAKE);
-          } else {
-            this.superstructureCommand(DesiredState.PREP_L3);
-          }
-        });
+    return Commands.either(
+        this.superstructureCommand(DesiredState.ALGAE_HIGH_INTAKE),
+        this.superstructureCommand(DesiredState.PREP_L3),
+        () -> (robotMode == RobotMode.ALGAE));
   }
 
   public Command coralL4AlgaeNET() {
-    return Commands.runOnce(
-        () -> {
-          if (robotMode == RobotMode.ALGAE) {
-            this.superstructureCommand(DesiredState.GO_NET);
-          } else {
-            this.superstructureCommand(DesiredState.PREP_L4);
-          }
-        });
+    return Commands.either(
+        this.superstructureCommand(DesiredState.GO_NET),
+        this.superstructureCommand(DesiredState.PREP_L4),
+        () -> (robotMode == RobotMode.ALGAE));
+  }
+
+  public Command outtakeCoralAlgae() {
+    return Commands.either(
+        this.superstructureCommand(DesiredState.CLEAN_ALGAE),
+        this.superstructureCommand(DesiredState.OUTTAKE_CORAL),
+        () -> (robotMode == RobotMode.ALGAE));
   }
 }

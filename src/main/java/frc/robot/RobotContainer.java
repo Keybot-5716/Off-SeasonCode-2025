@@ -14,7 +14,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -79,7 +78,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController driver_controller = new CommandXboxController(1);
-  private final CommandXboxController operator_controller = new CommandXboxController(2);
+  private final CommandXboxController Emergency_Operator_controller = new CommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -221,8 +220,8 @@ public class RobotContainer {
     // Configure the button bindings
     configureDriver(driver_controller);
 
-    configNamedCommands();
-    // configureOperatorBindings(operator_controller);
+    // configNamedCommands();
+    configureEmergencyOperatorBindings(Emergency_Operator_controller);
   }
 
   private void configureDriver(CommandXboxController controller) {
@@ -262,15 +261,15 @@ public class RobotContainer {
 
     controller
         .start()
-        .onTrue(new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d()))));
+        .onTrue(
+            new InstantCommand(() -> drive.setPose(new Pose2d(0, 0, new Rotation2d())))
+                .ignoringDisable(true));
     controller.a().onTrue(superstructure.superstructureCommand(DesiredState.HOME));
-    controller.back().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L1));
-    controller.b().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L2));
-    controller.x().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L3));
-    controller.y().onTrue(superstructure.superstructureCommand(DesiredState.PREP_L4));
-    controller
-        .rightTrigger()
-        .onTrue(superstructure.superstructureCommand(DesiredState.OUTTAKE_CORAL));
+    controller.back().onTrue(superstructure.coralL1AlgaePROCESSOR());
+    controller.b().onTrue(superstructure.coralL2algaeLOW());
+    controller.x().onTrue(superstructure.coralL3algaeHIGH());
+    controller.y().onTrue(superstructure.coralL4AlgaeNET());
+    controller.rightTrigger().onTrue(superstructure.outtakeCoralAlgae());
     controller
         .leftTrigger()
         .whileTrue(superstructure.superstructureCommand(DesiredState.INTAKE_CORAL))
@@ -295,7 +294,7 @@ public class RobotContainer {
         .onTrue(superstructure.superstructureCommand(DesiredState.CLIMB))
         .onFalse(superstructure.superstructureCommand(DesiredState.STOPPED));
   }
-
+  /*
   public void configNamedCommands() {
     NamedCommands.registerCommand(
         "Giroooos",
@@ -303,9 +302,25 @@ public class RobotContainer {
             () -> {
               System.out.println("yeahhhh");
             }));
-  }
+    NamedCommands.registerCommand(
+        "PREPL2", superstructure.superstructureCommand(DesiredState.PREP_L2));
+  }*/
 
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  private void configureEmergencyOperatorBindings(CommandXboxController controller) {
+    // Configure operator button bindings here
+    controller.a().onTrue(new InstantCommand(() -> arm.setTargetPosition(45))); // ejemplo
+    controller.povUp().onTrue(new InstantCommand(() -> arm.adjustTargetPosition(+5)));
+    controller
+        .povDown()
+        .onTrue(superstructure.superstructureCommand(DesiredState.MANUAL))
+        .onFalse(superstructure.superstructureCommand(DesiredState.STOPPED));
+  }
+
+  public SwerveSubsystem getSwerveSub() {
+    return drive;
   }
 }

@@ -34,7 +34,7 @@ public class ArmIOTalonFX implements ArmIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 30;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
 
     config.MotionMagic.MotionMagicCruiseVelocity = 0; // Valor original: 80
     config.MotionMagic.MotionMagicAcceleration = 0; // Valor original: 160

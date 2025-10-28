@@ -17,23 +17,31 @@ public class FieldConstants {
   public static final Pose2d NONE = new Pose2d(0, 0, new Rotation2d());
   public static final Pose2d NONE1 = new Pose2d(3.169, 4.015, new Rotation2d());
 
-  public static final Pose2d REEF_1A = new Pose2d(3.2, 4.19, Rotation2d.fromDegrees(0));
-  public static final Pose2d REEF_1B = new Pose2d(3.2, 3.85, Rotation2d.fromDegrees(0));
+  public static final Pose2d REEF_1A = new Pose2d(3.175, 4.19, Rotation2d.fromDegrees(0));
+  public static final Pose2d REEF_1B = new Pose2d(3.175, 3.86, Rotation2d.fromDegrees(0));
 
-  public static final Pose2d REEF_2A = new Pose2d(3.695, 3, Rotation2d.fromDegrees(60));
-  public static final Pose2d REEF_2B = new Pose2d(3.978, 2.816, Rotation2d.fromDegrees(60));
+  public static final Pose2d REEF_2A = new Pose2d(3.690, 2.969, Rotation2d.fromDegrees(60));
+  public static final Pose2d REEF_2B = new Pose2d(3.980, 2.805, Rotation2d.fromDegrees(60));
 
-  public static final Pose2d REEF_3A = new Pose2d(5.018, 2.806, Rotation2d.fromDegrees(120)); //
-  public static final Pose2d REEF_3B = new Pose2d(5.291, 2.969, Rotation2d.fromDegrees(120)); //
+  public static final Pose2d REEF_3A = new Pose2d(5, 2.810, Rotation2d.fromDegrees(120)); //
+  public static final Pose2d REEF_3B = new Pose2d(5.285, 2.973, Rotation2d.fromDegrees(120)); //
 
-  public static final Pose2d REEF_4A = new Pose2d(5.8, 4.19, Rotation2d.fromDegrees(180)); //
-  public static final Pose2d REEF_4B = new Pose2d(5.8, 3.85, Rotation2d.fromDegrees(180)); //
+  public static final Pose2d REEF_4A = new Pose2d(5.797, 4.19, Rotation2d.fromDegrees(180)); //
+  public static final Pose2d REEF_4B = new Pose2d(5.797, 3.860, Rotation2d.fromDegrees(180)); //
 
-  public static final Pose2d REEF_5A = new Pose2d(5.291, 5.081, Rotation2d.fromDegrees(-120)); //
-  public static final Pose2d REEF_5B = new Pose2d(5.022, 5.241, Rotation2d.fromDegrees(-120)); //
+  public static final Pose2d REEF_5A = new Pose2d(5.280, 5.080, Rotation2d.fromDegrees(-120)); //
+  public static final Pose2d REEF_5B = new Pose2d(4.995, 5.240, Rotation2d.fromDegrees(-120)); //
 
-  public static final Pose2d REEF_6A = new Pose2d(3.991, 5.241, Rotation2d.fromDegrees(-60));
-  public static final Pose2d REEF_6B = new Pose2d(3.691, 5.079, Rotation2d.fromDegrees(-60));
+  public static final Pose2d REEF_6A = new Pose2d(3.975, 5.240, Rotation2d.fromDegrees(-60));
+  public static final Pose2d REEF_6B = new Pose2d(3.690, 5.080, Rotation2d.fromDegrees(-60));
+
+  // L1 CORAL
+  public static final Pose2d REEF_1L1 = new Pose2d(3.165, 4.019, Rotation2d.fromDegrees(0));
+  public static final Pose2d REEF_2L1 = new Pose2d(3.822, 2.874, Rotation2d.fromDegrees(60));
+  public static final Pose2d REEF_3L1 = new Pose2d(5.148, 2.874, Rotation2d.fromDegrees(120));
+  public static final Pose2d REEF_4L1 = new Pose2d(5.830, 4.019, Rotation2d.fromDegrees(180));
+  public static final Pose2d REEF_5L1 = new Pose2d(5.177, 5.195, Rotation2d.fromDegrees(-120));
+  public static final Pose2d REEF_6L1 = new Pose2d(3.803, 5.195, Rotation2d.fromDegrees(-60));
 
   public static final Pose2d LEFT_FEEDER = new Pose2d(0, 8, Rotation2d.fromDegrees(-55));
   public static final Pose2d RIGHT_FEEDER = new Pose2d(0, 0, Rotation2d.fromDegrees(55));
@@ -43,6 +51,8 @@ public class FieldConstants {
           REEF_1A, REEF_1B, REEF_2A, REEF_2B, REEF_3A, REEF_3B, REEF_4A, REEF_4B, REEF_5A, REEF_5B,
           REEF_6A, REEF_6B);
   private static final List<Pose2d> BLUE_FEEDER = List.of(LEFT_FEEDER, RIGHT_FEEDER);
+  private static final List<Pose2d> BLUE_REEF_L1 =
+      List.of(REEF_1L1, REEF_2L1, REEF_3L1, REEF_4L1, REEF_5L1, REEF_6L1);
   private static final Pose2d[] BLUE_POSES =
       new Pose2d[] {
         NONE,
@@ -60,11 +70,18 @@ public class FieldConstants {
         REEF_6A,
         REEF_6B,
         LEFT_FEEDER,
-        RIGHT_FEEDER
+        RIGHT_FEEDER,
+        REEF_1L1,
+        REEF_2L1,
+        REEF_3L1,
+        REEF_4L1,
+        REEF_5L1,
+        REEF_6L1
       };
 
   private static final List<Pose2d> RED_REEF = getRedReef();
   private static final List<Pose2d> RED_FEEDER = getRedFeeder();
+  private static final List<Pose2d> RED_REEF_L1 = getReefL1();
   private static final Pose2d[] RED_POSES = getRedPoses();
 
   // En esta función regresamos una pose posibles del equipo azul convertida al rojo
@@ -105,10 +122,18 @@ public class FieldConstants {
 
     return List.of(poses[0], poses[1]);
   }
+
+  private static List<Pose2d> getReefL1() {
+    Pose2d[] poses = new Pose2d[BLUE_REEF_L1.size()];
+
+    for (int num = 0; num < BLUE_REEF_L1.size(); num++) {
+      poses[num] = getRedPose(BLUE_REEF_L1.get(num));
+    }
+
+    return List.of(poses[0], poses[1], poses[2], poses[3], poses[4], poses[5]);
+  }
   // Conseguimos las posiciones del campo, ya sean del equipo azul o rojo
   public static Supplier<Pose2d[]> getFieldPos() {
-    // if(FieldConstants.ALLIANCE.isPresent() &&
-    // FieldConstants.ALLIANCE.get().equals(Alliance.Red)){
     if (isRedAlliance) {
       return () -> RED_POSES;
     }
@@ -118,8 +143,6 @@ public class FieldConstants {
   // Conseguimos las poses del reef de los equipos azul y rojo
   public static final Supplier<List<Pose2d>> getReefPos() {
     if (isRedAlliance) {
-      // if(FieldConstants.ALLIANCE.isPresent() &&
-      // FieldConstants.ALLIANCE.get().equals(Alliance.Red)){
       return () -> RED_REEF;
     }
 
@@ -128,11 +151,17 @@ public class FieldConstants {
   // Conseguimos las poses del feeder de los equipos azul y rojo
   public static final Supplier<List<Pose2d>> getFeederPos() {
     if (isRedAlliance) {
-      // if(FieldConstants.ALLIANCE.isPresent() &&
-      // FieldConstants.ALLIANCE.get().equals(Alliance.Red)){
       return () -> RED_FEEDER;
     }
 
     return () -> BLUE_FEEDER;
+  }
+
+  public static final Supplier<List<Pose2d>> getReefL1Pos() {
+    if (isRedAlliance) {
+      return () -> RED_REEF_L1;
+    }
+
+    return () -> BLUE_REEF_L1;
   }
 }

@@ -40,7 +40,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
 
     config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 60; // Reducido
 
     config.MotionMagic.MotionMagicCruiseVelocity = 0;
     config.MotionMagic.MotionMagicAcceleration = 0;

@@ -14,7 +14,7 @@ public class RollerIOSparkMax implements RollerIO {
   public RollerIOSparkMax() {
     motor = new SparkMax(RollerConstants.ROLLER_MOTOR_ID, MotorType.kBrushless);
 
-    config.smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+    config.smartCurrentLimit(40).idleMode(IdleMode.kBrake);
     motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 

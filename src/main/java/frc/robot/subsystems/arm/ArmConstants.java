@@ -17,9 +17,9 @@ public class ArmConstants {
   public static final double SCORE_L4 = 53.0;
 
   // ALGAE
-  public static final double ALGAE_HIGH_INTAKE = 43.0;
-  public static final double ALGAE_LOW_INTAKE = 43.0;
+  public static final double ALGAE_HIGH_INTAKE = 50;
+  public static final double ALGAE_LOW_INTAKE = 43;
 
-  public static final double ALGAE_NET = 00;
-  public static final double ALGAE_PROCESSOR = 00;
+  public static final double ALGAE_NET = 3;
+  public static final double ALGAE_PROCESSOR = 3;
 }

@@ -14,7 +14,7 @@ public class ElevatorConstants {
   public static final double REST = 0.1;
 
   // CORAL
-  public static final double L1 = 0.8;
+  public static final double L1 = 1.0;
   public static final double L2 = 0.12;
   public static final double L3 = 1.5;
   public static final double L4 = 3.25;
@@ -23,8 +23,8 @@ public class ElevatorConstants {
 
   // ALGAE
   public static final double GROUND = 0.1;
-  public static final double LOW_ALGAE = 0.1;
-  public static final double HIGH_ALGAE = 0.1;
+  public static final double LOW_ALGAE = 0.8;
+  public static final double HIGH_ALGAE = 1.7;
   public static final double NET = 0.1;
   public static final double PROCESSOR = 0.1;
 }

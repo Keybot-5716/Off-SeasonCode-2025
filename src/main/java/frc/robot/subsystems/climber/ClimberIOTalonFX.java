@@ -20,7 +20,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLowerLimit = 30;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 50;
 
     motor.getConfigurator().apply(config);
   }

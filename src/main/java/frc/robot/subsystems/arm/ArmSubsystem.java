@@ -146,4 +146,13 @@ public class ArmSubsystem extends SubsystemBase {
     this.desiredState = desiredState;
     this.desiredOutput = desiredOutput;
   }
+
+  // Manual Test
+  public void setTargetPosition(double position) {
+    desiredElevatorPosition = position;
+  }
+
+  public void adjustTargetPosition(double delta) {
+    desiredElevatorPosition += delta;
+  }
 }

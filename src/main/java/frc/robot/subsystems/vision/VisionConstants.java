@@ -16,7 +16,8 @@ public class VisionConstants {
   public static String cameraName = "limelight";
 
   // Not used in code, only limelight interface
-  public static Transform3d robotToCamera = new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0));
+  public static Transform3d robotToCamera =
+      new Transform3d(0.09, -0.25, 0.12, new Rotation3d(0, 0, -20));
 
   // Basic thresholds
   public static double maxAmbiguity = 0.3;
